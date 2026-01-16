@@ -1,0 +1,44 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+*.log
+*.tmp
+*.sqlite3
+.python-version
+.venv/
+.env
+.env.*
+
+# FastAPI / build
+uvicorn.log
+
+# Jupyter / data
+.ipynb_checkpoints/
+*.ipynb
+
+# Frontend artifacts
+node_modules/
+dist/
+build/
+.DS_Store
+*.cache
+
+# OS junk
+Thumbs.db
+*.swp
+*.swo
+
+# Datasets + models
+*.csv
+*.tsv
+*.xlsx
+*.joblib
+*.pkl
+
+# VS Code
+.vscode/

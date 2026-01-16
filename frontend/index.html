@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ML Model Serving Playground</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <main class="app-shell">
+        <header class="hero">
+            <h1>Portfolio ML Studio</h1>
+            <p>Upload a CSV, pick a classical model, and preview predictions instantly. No notebooks required.</p>
+        </header>
+
+        <section class="card">
+            <form id="predictionForm" class="form-grid">
+                <div class="field">
+                    <label for="modelSelect">Choose a model</label>
+                    <select id="modelSelect" name="model_name" required>
+                        <option value="" disabled selected>Loading models...</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="fileInput">Upload CSV</label>
+                    <input id="fileInput" type="file" accept=".csv" required />
+                    <small>Ensure your target column exists for supervised models.</small>
+                </div>
+
+                <div class="field">
+                    <label for="targetColumn">Target column (optional)</label>
+                    <input id="targetColumn" type="text" placeholder="auto-detect if left blank" />
+                </div>
+
+                <div class="toggle-group">
+                    <label>
+                        <input id="previewToggle" type="checkbox" checked />
+                        Preview first 5 rows
+                    </label>
+                    <label>
+                        <input id="csvToggle" type="checkbox" />
+                        Return downloadable CSV
+                    </label>
+                </div>
+
+                <button type="submit" class="primary">Run Prediction</button>
+            </form>
+        </section>
+
+        <section class="card results">
+            <div class="results-header">
+                <h2>Results</h2>
+                <a id="downloadBtn" class="ghost" href="#" download style="display: none;">Download CSV</a>
+            </div>
+            <div id="statusMessage" role="status">Waiting for input...</div>
+            <div class="metadata" id="metadataPanel"></div>
+            <div class="predictions" id="predictionPanel"></div>
+            <div class="preview" id="previewSection" style="display: none;">
+                <h3>Preview</h3>
+                <div class="table-wrapper">
+                    <table id="previewTable">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <template id="metadataTemplate">
+        <div class="meta-item">
+            <span class="meta-label"></span>
+            <span class="meta-value"></span>
+        </div>
+    </template>
+
+    <script src="app.js" type="module"></script>
+</body>
+</html>
