@@ -3,15 +3,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ML Model Serving Playground</title>
+    <title>Insight ML Workbench</title>
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
     <div class="background-glow" aria-hidden="true"></div>
     <main class="app-shell">
         <header class="hero">
-            <h1>Portfolio ML Studio</h1>
-            <p>Upload a CSV, pick a classical model, and preview predictions instantly. No notebooks required.</p>
+            <h1>Insight ML Workbench</h1>
+            <p>Configure splits, select a model, upload your source dataset, and preview predictions with ease.</p>
         </header>
 
         <section class="card">
@@ -24,14 +24,26 @@
                 </div>
 
                 <div class="field">
-                    <label for="fileInput">Upload CSV</label>
+                    <label for="fileInput">Source Dataset</label>
                     <input id="fileInput" type="file" accept=".csv" required />
-                    <small>Ensure your target column exists for supervised models.</small>
+                    <small>Ensure your target variable exists for supervised models.</small>
                 </div>
 
                 <div class="field">
-                    <label for="targetColumn">Target column (optional)</label>
+                    <label for="targetColumn">Target Variable (Label)</label>
                     <input id="targetColumn" type="text" placeholder="auto-detect if left blank" />
+                </div>
+
+                <div class="field split-field">
+                    <label for="trainSplit">Data Splitting Strategy</label>
+                    <div class="split-control">
+                        <div class="split-summary">
+                            <span>Train: <strong id="trainValue">80%</strong></span>
+                            <span>Test: <strong id="testValue">20%</strong></span>
+                        </div>
+                        <input id="trainSplit" type="range" min="10" max="95" step="1" value="80" />
+                        <small>Adjust training allocation; remaining percentage is used for testing.</small>
+                    </div>
                 </div>
 
                 <div class="toggle-group">

@@ -4,6 +4,9 @@ const form = document.getElementById("predictionForm");
 const modelSelect = document.getElementById("modelSelect");
 const fileInput = document.getElementById("fileInput");
 const targetColumnInput = document.getElementById("targetColumn");
+const trainSplitInput = document.getElementById("trainSplit");
+const trainValueEl = document.getElementById("trainValue");
+const testValueEl = document.getElementById("testValue");
 const usePreviewToggle = document.getElementById("previewToggle");
 const returnCsvToggle = document.getElementById("csvToggle");
 const statusMessage = document.getElementById("statusMessage");
@@ -70,6 +73,9 @@ form.addEventListener("submit", async (event) => {
         formData.append("return_csv", returnCsvToggle.checked ? "true" : "false");
         if (targetColumnInput.value.trim()) {
             formData.append("target_column", targetColumnInput.value.trim());
+        }
+        if (trainSplitInput && trainSplitInput.value) {
+            formData.append("train_set_size", trainSplitInput.value); // percentage for training
         }
         formData.append("file", fileInput.files[0]);
 
@@ -139,9 +145,13 @@ function renderPredictions(predictions) {
         predictionPanel.innerHTML = "";
         return;
     }
-    const sample = predictions.slice(0, 5);
-    const body = JSON.stringify(sample, null, 2);
-    predictionPanel.innerHTML = `<pre>${body}</pre>`;
+    const count = predictions.length;
+    predictionPanel.innerHTML = `
+        <div class="summary-card">
+            <div class="summary-title">Success!</div>
+            <div class="summary-body">Generated ${count} predictions.</div>
+        </div>
+    `;
 }
 
 function renderPreview(rows) {
@@ -203,3 +213,15 @@ function setStatus(message, tone = "info") {
 }
 
 fetchModels();
+
+// keep train/test percentages in sync
+if (trainSplitInput && trainValueEl && testValueEl) {
+    const syncSplit = () => {
+        const trainPct = Number(trainSplitInput.value);
+        const testPct = 100 - trainPct;
+        trainValueEl.textContent = `${trainPct}%`;
+        testValueEl.textContent = `${testPct}%`;
+    };
+    trainSplitInput.addEventListener("input", syncSplit);
+    syncSplit();
+}

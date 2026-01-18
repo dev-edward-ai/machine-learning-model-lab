@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap');
 
 :root {
-    --bg: #07090f;
-    --fg: #f4f6ff;
-    --accent: #5cf4d4;
-    --accent-dark: #19c9a4;
-    --card: rgba(14, 18, 34, 0.8);
-    --muted: #8a93b2;
+    --bg: #0f172a;
+    --fg: #e2e8f0;
+    --accent: #34d399;
+    --accent-dark: #10b981;
+    --card: rgba(30, 41, 59, 0.85);
+    --muted: #94a3b8;
     --border: rgba(255, 255, 255, 0.08);
 }
 
@@ -18,8 +18,8 @@ body {
     margin: 0;
     min-height: 100vh;
     font-family: 'Space Grotesk', 'DM Sans', system-ui, sans-serif;
-    background: radial-gradient(circle at top, rgba(124, 202, 255, 0.4), transparent 45%),
-                radial-gradient(circle at 20% 20%, rgba(92, 244, 212, 0.4), transparent 30%),
+    background: radial-gradient(circle at 30% 0%, rgba(52, 211, 153, 0.16), transparent 35%),
+                radial-gradient(circle at 70% 20%, rgba(59, 130, 246, 0.12), transparent 32%),
                 var(--bg);
     color: var(--fg);
 }
@@ -64,7 +64,7 @@ body {
     padding: 2rem;
     backdrop-filter: blur(20px);
     margin-bottom: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45);
 }
 
 .form-grid {
@@ -81,14 +81,21 @@ body {
 
 input[type="file"],
 input[type="text"],
-select {
+input[type="number"],
+select,
+input[type="range"] {
     width: 100%;
     padding: 0.85rem 1rem;
     border-radius: 0.75rem;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(15, 23, 42, 0.9);
     color: var(--fg);
     font-size: 1rem;
+}
+
+select option {
+    background: #0f172a;
+    color: #e2e8f0;
 }
 
 small {
@@ -192,14 +199,21 @@ small {
     margin-top: 1.5rem;
 }
 
-.predictions pre {
-    margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    padding: 1rem;
+.summary-card {
+    padding: 1rem 1.25rem;
     border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border);
+    background: linear-gradient(120deg, rgba(52, 211, 153, 0.18), rgba(52, 211, 153, 0.08));
+    border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.summary-title {
+    font-weight: 700;
+    color: #bbf7d0;
+}
+
+.summary-body {
+    color: var(--fg);
+    margin-top: 0.25rem;
 }
 
 .preview h3 {
@@ -228,6 +242,25 @@ small {
 #previewTable th {
     font-weight: 600;
     color: var(--muted);
+}
+
+#previewTable tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.split-control {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+.split-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--fg);
+    margin-bottom: 0.35rem;
 }
 
 @media (max-width: 640px) {

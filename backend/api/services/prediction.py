@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import base64
+import importlib
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from fastapi import HTTPException, status
+from sklearn.cluster import DBSCAN, KMeans
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest, RandomForestRegressor
@@ -18,10 +20,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.cluster import DBSCAN, KMeans
 
 try:  # Optional dependency
-    from xgboost import XGBClassifier, XGBRegressor  # type: ignore
+    xgboost_module = importlib.import_module("xgboost")
+    XGBClassifier = getattr(xgboost_module, "XGBClassifier", None)  # type: ignore[attr-defined]
+    XGBRegressor = getattr(xgboost_module, "XGBRegressor", None)  # type: ignore[attr-defined]
 except Exception:  # pragma: no cover - optional
     XGBClassifier = None  # type: ignore
     XGBRegressor = None  # type: ignore
