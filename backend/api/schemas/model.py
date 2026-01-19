@@ -24,6 +24,13 @@ class PredictionMetadata(BaseModel):
     target_column: Optional[str] = None
 
 
+class BusinessInsights(BaseModel):
+    headline: str
+    detailed_insight: Optional[str] = None
+    recommended_action: Optional[str] = None
+    predictions: List[Any]
+
+
 class PredictionResponse(BaseModel):
     model_name: str
     model_type: str
@@ -32,3 +39,4 @@ class PredictionResponse(BaseModel):
     preview: Optional[List[Dict[str, Any]]] = None
     csv_base64: Optional[str] = Field(default=None, description="Base64 encoded CSV with predictions")
     csv_filename: Optional[str] = None
+    business_insights: Optional[BusinessInsights] = None

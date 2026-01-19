@@ -4,89 +4,111 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Insight ML Workbench</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color-scheme: dark;
+        }
+    </style>
 </head>
-<body>
-    <div class="background-glow" aria-hidden="true"></div>
-    <main class="app-shell">
-        <header class="hero">
-            <h1>Insight ML Workbench</h1>
-            <p>Configure splits, select a model, upload your source dataset, and preview predictions with ease.</p>
-        </header>
+<body class="bg-slate-950 text-slate-300 min-h-screen relative overflow-x-hidden">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute inset-x-0 -top-24 mx-auto h-72 w-72 md:w-[28rem] md:h-[28rem] rounded-full blur-3xl opacity-40" style="background: radial-gradient(circle, rgba(124,58,237,0.35) 0%, rgba(15,23,42,0.1) 60%, transparent 75%);"></div>
+    </div>
 
-        <section class="card">
-            <form id="predictionForm" class="form-grid">
-                <div class="field">
-                    <label for="modelSelect">Choose a model</label>
-                    <select id="modelSelect" name="model_name" required>
-                        <option value="" disabled selected>Loading models...</option>
-                    </select>
-                </div>
+    <div class="relative flex min-h-screen items-center justify-center px-4 py-10">
+        <main class="w-full max-w-6xl backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)] p-8 md:p-12">
+            <div class="text-center space-y-3 mb-10">
+                <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Executive AI Platform</div>
+                <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Insight ML</h1>
+                <p class="text-base text-slate-400">Web3-grade intelligence for business-first predictions. Upload, configure, and deploy in minutes.</p>
+            </div>
 
-                <div class="field">
-                    <label for="fileInput">Source Dataset</label>
-                    <input id="fileInput" type="file" accept=".csv" required />
-                    <small>Ensure your target variable exists for supervised models.</small>
-                </div>
+            <div class="grid lg:grid-cols-2 gap-10">
+                <form id="predictionForm" class="space-y-6">
+                    <div class="space-y-2">
+                        <label for="objectiveSelect" class="text-sm font-semibold text-white">Business Goal</label>
+                        <select id="objectiveSelect" name="business_objective" required class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                            <option value="" disabled selected class="bg-slate-900">Select a business objective</option>
+                            <option value="churn" class="bg-slate-900">Identify At-Risk Customers (Churn Prediction)</option>
+                            <option value="revenue" class="bg-slate-900">Forecast Future Revenue (Sales Prediction)</option>
+                            <option value="segmentation" class="bg-slate-900">Segment My Customer Base (Clustering)</option>
+                            <option value="anomaly" class="bg-slate-900">Detect Anomalies/Fraud (Outlier Detection)</option>
+                        </select>
+                    </div>
 
-                <div class="field">
-                    <label for="targetColumn">Target Variable (Label)</label>
-                    <input id="targetColumn" type="text" placeholder="auto-detect if left blank" />
-                </div>
-
-                <div class="field split-field">
-                    <label for="trainSplit">Data Splitting Strategy</label>
-                    <div class="split-control">
-                        <div class="split-summary">
-                            <span>Train: <strong id="trainValue">80%</strong></span>
-                            <span>Test: <strong id="testValue">20%</strong></span>
+                    <div class="space-y-2">
+                        <label for="fileInput" class="text-sm font-semibold text-white">Source Dataset (CSV)</label>
+                        <div class="relative" id="uploadZoneWrapper">
+                            <input id="fileInput" name="file" type="file" accept=".csv,text/csv" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <div id="uploadZone" class="group block w-full rounded-2xl border-dashed border-2 border-slate-700 bg-slate-900/50 px-4 py-5 text-center text-sm text-slate-300 hover:border-purple-500 transition cursor-pointer">
+                                <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                    <span id="uploadLabel" class="text-white font-semibold">Upload CSV</span>
+                                    <span class="text-xs text-slate-500">Drop your file here or click to browse</span>
+                                </div>
+                            </div>
                         </div>
-                        <input id="trainSplit" type="range" min="10" max="95" step="1" value="80" />
-                        <small>Adjust training allocation; remaining percentage is used for testing.</small>
+                        <p id="fileNameDisplay" class="text-xs text-slate-500">No file selected.</p>
+                        <p class="text-xs text-slate-500">Ensure your target variable exists for supervised models.</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="targetColumn" class="text-sm font-semibold text-white">Target Variable (Label)</label>
+                        <input id="targetColumn" type="text" placeholder="auto-detect if left blank" class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" />
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm text-slate-400">
+                            <label for="trainSplit" class="font-semibold text-white">Data Splitting Strategy</label>
+                            <div class="text-xs">Train: <span class="font-semibold" id="trainValue">80%</span> · Test: <span class="font-semibold" id="testValue">20%</span></div>
+                        </div>
+                        <input id="trainSplit" type="range" min="10" max="95" step="1" value="80" class="w-full accent-purple-400" />
+                        <p class="text-xs text-slate-500">Adjust training allocation; remaining percentage is used for testing.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4 text-sm text-slate-200">
+                        <label class="inline-flex items-center gap-2">
+                            <input id="previewToggle" type="checkbox" checked class="accent-purple-500" />
+                            Preview first 5 rows
+                        </label>
+                        <label class="inline-flex items-center gap-2">
+                            <input id="csvToggle" type="checkbox" class="accent-purple-500" />
+                            Return downloadable CSV
+                        </label>
+                    </div>
+
+                    <button type="submit" id="runButton" class="w-full py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-purple-500/30 transition transform hover:scale-[1.02] hover:brightness-110">
+                        Run Prediction
+                    </button>
+                </form>
+
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-white">Results</h2>
+                        <a id="downloadBtn" class="hidden px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-sm font-semibold text-white hover:bg-white/15 transition" href="#" download>Download CSV</a>
+                    </div>
+                    <div id="statusMessage" role="status" class="text-sm text-slate-300">Waiting for input...</div>
+                    <div id="metadataPanel" class="hidden"></div>
+                    <div id="predictionPanel"></div>
+                    <div id="previewSection" class="hidden">
+                        <h3 class="text-sm font-semibold text-slate-200 mb-2">Preview</h3>
+                        <div class="overflow-x-auto rounded-2xl border border-white/10 bg-white/5">
+                            <table id="previewTable" class="min-w-full text-sm text-left text-slate-100">
+                                <thead class="bg-white/10"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-
-                <div class="toggle-group">
-                    <label>
-                        <input id="previewToggle" type="checkbox" checked />
-                        Preview first 5 rows
-                    </label>
-                    <label>
-                        <input id="csvToggle" type="checkbox" />
-                        Return downloadable CSV
-                    </label>
-                </div>
-
-                <button type="submit" class="primary">Run Prediction</button>
-            </form>
-        </section>
-
-        <section class="card results">
-            <div class="results-header">
-                <h2>Results</h2>
-                <a id="downloadBtn" class="ghost" href="#" download style="display: none;">Download CSV</a>
             </div>
-            <div id="statusMessage" role="status">Waiting for input...</div>
-            <div class="metadata" id="metadataPanel"></div>
-            <div class="predictions" id="predictionPanel"></div>
-            <div class="preview" id="previewSection" style="display: none;">
-                <h3>Preview</h3>
-                <div class="table-wrapper">
-                    <table id="previewTable">
-                        <thead></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
 
-    <template id="metadataTemplate">
-        <div class="meta-item">
-            <span class="meta-label"></span>
-            <span class="meta-value"></span>
-        </div>
-    </template>
+            <footer class="mt-10 text-center text-xs text-slate-600">Powered by dev-edward-ai</footer>
+        </main>
+    </div>
 
     <script src="app.js" type="module"></script>
 </body>

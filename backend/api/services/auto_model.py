@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, List
 
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, IsolationForest
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import accuracy_score, r2_score, silhouette_score
@@ -22,30 +22,53 @@ def recommend_and_run_best_model(
     df: pd.DataFrame,
     target_col: Optional[str],
     user_intent: str = "",
+    business_objective: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """
-    Auto-detect task type, run a small tournament, and return the top model.
-
-    Drops NaNs defensively. Returns a dictionary with:
-        recommended_model_name, reasoning, model_object, task_type, metric_value.
-    """
+    """Run AutoML and translate results into business insights."""
     if df is None or df.empty:
         raise ValueError("DataFrame is empty.")
     df = df.dropna()
     if df.empty:
         raise ValueError("All rows dropped after removing NaNs; please provide cleaner data.")
 
-    task_type = detect_task_type(df, target_col)
+    task_type = detect_task_type(df, target_col, business_objective)
 
     if task_type == "clustering":
-        best_name, best_model, best_score = run_clustering_tournament(df)
+        best_name, best_model, best_score, cluster_labels = run_clustering_tournament(df)
         reasoning = f"Selected because it achieved the highest silhouette score of {best_score:.3f} across tested k."
+        summary = summarize_business_insights(
+            task_type=task_type,
+            predictions=cluster_labels,
+            source_df=df,
+            target_col=target_col,
+            business_objective=business_objective,
+        )
         return {
             "recommended_model_name": best_name,
             "reasoning": reasoning,
             "model_object": best_model,
             "task_type": task_type,
             "metric_value": best_score,
+            "business_summary": summary,
+        }
+
+    if task_type == "anomaly":
+        best_name, best_model, best_score, anomaly_flags = run_anomaly_tournament(df)
+        reasoning = "Selected Isolation Forest for its balance of precision and coverage on outliers."
+        summary = summarize_business_insights(
+            task_type=task_type,
+            predictions=anomaly_flags,
+            source_df=df,
+            target_col=None,
+            business_objective=business_objective,
+        )
+        return {
+            "recommended_model_name": best_name,
+            "reasoning": reasoning,
+            "model_object": best_model,
+            "task_type": task_type,
+            "metric_value": best_score,
+            "business_summary": summary,
         }
 
     # Supervised path
@@ -115,8 +138,16 @@ def recommend_and_run_best_model(
         )
         reasoning = f"Selected because it achieved the highest accuracy of {best_score:.3f} among tested classifiers."
 
-    # Refit best model on all data for downstream predictions
     best_model.fit(X, y)
+    predictions = best_model.predict(X)
+
+    summary = summarize_business_insights(
+        task_type=task_type,
+        predictions=predictions,
+        source_df=df,
+        target_col=target_col,
+        business_objective=business_objective,
+    )
 
     return {
         "recommended_model_name": best_name,
@@ -124,17 +155,23 @@ def recommend_and_run_best_model(
         "model_object": best_model,
         "task_type": task_type,
         "metric_value": best_score,
+        "business_summary": summary,
     }
 
 
-def detect_task_type(df: pd.DataFrame, target_col: Optional[str]) -> str:
+def detect_task_type(df: pd.DataFrame, target_col: Optional[str], business_objective: Optional[str] = None) -> str:
+    objective = (business_objective or "").lower()
+    if "anomaly" in objective or "fraud" in objective or "outlier" in objective:
+        return "anomaly"
+    if "segment" in objective or "cluster" in objective:
+        return "clustering"
     if target_col is None:
         return "clustering"
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
     series = df[target_col]
     if pd.api.types.is_numeric_dtype(series):
-        return "regression" if series.nunique() > 20 else "classification"
+        return "regression" if series.nunique() > 20 or "revenue" in objective else "classification"
     return "classification"
 
 
@@ -160,7 +197,7 @@ def run_supervised_tournament(
     return best_name, best_model, float(best_score)
 
 
-def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float]:
+def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float, np.ndarray]:
     X = df.select_dtypes(include=[np.number])
     if X.empty:
         raise ValueError("Clustering requires at least one numeric column.")
@@ -170,6 +207,7 @@ def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float]:
     best_score = -np.inf
     best_k = None
     best_model = None
+    best_labels = None
 
     for k in [3, 4, 5]:
         steps = [
@@ -187,6 +225,85 @@ def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float]:
                 best_score = score
                 best_k = k
                 best_model = pipe
-    if best_model is None:
+                best_labels = labels
+    if best_model is None or best_labels is None:
         raise ValueError("Clustering failed to produce more than one cluster; please check your data.")
-    return f"KMeans (k={best_k})", best_model, float(best_score)
+    return f"KMeans (k={best_k})", best_model, float(best_score), np.asarray(best_labels)
+
+
+def run_anomaly_tournament(df: pd.DataFrame) -> Tuple[str, Any, float, np.ndarray]:
+    X = df.select_dtypes(include=[np.number])
+    if X.empty:
+        raise ValueError("Anomaly detection requires at least one numeric column.")
+    pipe = Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+            ("iso", IsolationForest(random_state=42)),
+        ]
+    )
+    flags = pipe.fit_predict(X)  # -1 = anomaly, 1 = normal
+    anomaly_rate = float((flags == -1).mean())
+    score = 1 - anomaly_rate  # higher is better (fewer anomalies flagged)
+    return "Isolation Forest", pipe, score, np.asarray(flags)
+
+
+def summarize_business_insights(
+    task_type: str,
+    predictions: np.ndarray,
+    source_df: pd.DataFrame,
+    target_col: Optional[str],
+    business_objective: Optional[str],
+) -> Dict[str, Any]:
+    objective = (business_objective or "").lower()
+    total = len(source_df)
+    summary: Dict[str, Any] = {"headline": "", "details": {}, "recommended_action": ""}
+
+    if task_type == "classification":
+        positive_mask = np.isin(
+            np.array([str(p).lower() for p in predictions]),
+            ["1", "true", "yes", "churn", "at_risk", "risk", "high"],
+        )
+        at_risk = int(positive_mask.sum())
+        pct = (at_risk / total) * 100 if total else 0
+        summary["headline"] = f"ALERT: {at_risk} entities flagged as high risk ({pct:.1f}% of records)."
+        summary["details"] = {"high_risk_count": at_risk, "high_risk_percent": round(pct, 1)}
+        summary["recommended_action"] = "Prioritize outreach to high-risk customers and launch retention offers."
+        return summary
+
+    if task_type == "regression":
+        preds = np.asarray(predictions, dtype=float)
+        avg_value = float(np.mean(preds))
+        top_decile_cut = float(np.percentile(preds, 90))
+        top_decile_count = int((preds >= top_decile_cut).sum())
+        summary["headline"] = f"OPPORTUNITY: Top decile threshold is {top_decile_cut:.2f}. Avg prediction {avg_value:.2f}."
+        summary["details"] = {
+            "average_prediction": round(avg_value, 2),
+            "top_decile_threshold": round(top_decile_cut, 2),
+            "top_decile_count": top_decile_count,
+        }
+        summary["recommended_action"] = "Target the top-decile segment with premium upsell campaigns."
+        return summary
+
+    if task_type == "clustering":
+        labels = np.asarray(predictions)
+        counts = {int(lbl): int((labels == lbl).sum()) for lbl in np.unique(labels)}
+        dominant_cluster = max(counts, key=counts.get)
+        share = (counts[dominant_cluster] / total) * 100 if total else 0
+        summary["headline"] = f"SEGMENTATION: Found {len(counts)} clusters. Cluster {dominant_cluster} is {share:.1f}% of the base."
+        summary["details"] = {"clusters": counts, "dominant_cluster": dominant_cluster, "dominant_share_percent": round(share, 1)}
+        summary["recommended_action"] = "Design tailored messaging per segment; start with the dominant cluster to maximize impact."
+        return summary
+
+    if task_type == "anomaly":
+        flags = np.asarray(predictions)
+        anomalies = int((flags == -1).sum())
+        pct = (anomalies / total) * 100 if total else 0
+        summary["headline"] = f"ANOMALIES: {anomalies} potential outliers detected ({pct:.1f}% of records)."
+        summary["details"] = {"anomaly_count": anomalies, "anomaly_percent": round(pct, 1)}
+        summary["recommended_action"] = "Investigate flagged records for fraud or data quality issues."
+        return summary
+
+    summary["headline"] = "No business summary available."
+    summary["recommended_action"] = "Review dataset and objective."
+    return summary
