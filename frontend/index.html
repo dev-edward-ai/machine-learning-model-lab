@@ -1,115 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Insight ML Workbench</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoML Intelligence Platform - Professional ML Model Detection</title>
+    <meta name="description"
+        content="Professional AutoML platform with automatic model detection, real-world explanations, and 10+ ML algorithms">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            color-scheme: dark;
-        }
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-300 min-h-screen relative overflow-x-hidden">
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div class="absolute inset-x-0 -top-24 mx-auto h-72 w-72 md:w-[28rem] md:h-[28rem] rounded-full blur-3xl opacity-40" style="background: radial-gradient(circle, rgba(124,58,237,0.35) 0%, rgba(15,23,42,0.1) 60%, transparent 75%);"></div>
-    </div>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
 
-    <div class="relative flex min-h-screen items-center justify-center px-4 py-10">
-        <main class="w-full max-w-6xl backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl shadow-[0_0_40px_-10px_rgba(124,58,237,0.5)] p-8 md:p-12">
-            <div class="text-center space-y-3 mb-10">
-                <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Executive AI Platform</div>
-                <h1 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Insight ML</h1>
-                <p class="text-base text-slate-400">Web3-grade intelligence for business-first predictions. Upload, configure, and deploy in minutes.</p>
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Animated Particle Background -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+    <!-- Animated gradient overlay -->
+    <div class="gradient-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🤖</span>
+                <span class="brand-text">AutoML<span class="gradient-text">Intelligence</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#upload" class="nav-link">Analyze</a>
+                <a href="#models" class="nav-link">Models</a>
+                <a href="http://localhost:8000/docs" target="_blank" class="nav-link-special">
+                    API Docs <span class="external-icon">↗</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>10+ ML Models • Auto-Detection • Production Ready</span>
+            </div>
+            <h1 class="hero-title">
+                Transform Data Into
+                <span class="gradient-text-animated">Intelligent Insights</span>
+            </h1>
+            <p class="hero-description" id="typingText">
+                <span class="typing-cursor">|</span>
+            </p>
+            <div class="hero-cta">
+                <a href="#upload" class="btn-hero-primary">
+                    <span>Start Analyzing</span>
+                    <span class="btn-arrow">→</span>
+                </a>
+                <a href="#features" class="btn-hero-secondary">
+                    <span class="play-icon">▶</span>
+                    <span>See How It Works</span>
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">10+</div>
+                    <div class="stat-label">ML Models</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Automatic</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-value">⚡</div>
+                    <div class="stat-label">Instant Analysis</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="section-header">
+            <h2 class="section-title">Powerful Features</h2>
+            <p class="section-subtitle">Everything you need for intelligent data analysis</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up" data-delay="0">
+                <div class="feature-icon gradient-1">🎯</div>
+                <h3 class="feature-title">Auto Model Detection</h3>
+                <p class="feature-description">Upload your CSV and our AI automatically selects the best algorithm from
+                    10+ models</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-delay="100">
+                <div class="feature-icon gradient-2">💡</div>
+                <h3 class="feature-title">Real-World Explanations</h3>
+                <p class="feature-description">Every model comes with intuitive analogies that anyone can understand</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-delay="200">
+                <div class="feature-icon gradient-3">📊</div>
+                <h3 class="feature-title">Business Insights</h3>
+                <p class="feature-description">Get actionable recommendations tailored to your specific business
+                    objectives</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-delay="300">
+                <div class="feature-icon gradient-4">⚡</div>
+                <h3 class="feature-title">Lightning Fast</h3>
+                <p class="feature-description">Instant analysis with optimized algorithms and parallel processing</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-delay="400">
+                <div class="feature-icon gradient-5">🐳</div>
+                <h3 class="feature-title">Docker Ready</h3>
+                <p class="feature-description">One-command deployment that works on any laptop or server</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-delay="500">
+                <div class="feature-icon gradient-6">🎨</div>
+                <h3 class="feature-title">Premium UI</h3>
+                <p class="feature-description">Beautiful dark theme with glassmorphism and smooth animations</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload & Analysis Section -->
+    <section id="upload" class="upload-section">
+        <div class="upload-container">
+            <div class="upload-header">
+                <h2 class="section-title">Analyze Your Data</h2>
+                <p class="section-subtitle">Upload your CSV and let AI find the perfect model</p>
             </div>
 
-            <div class="grid lg:grid-cols-2 gap-10">
-                <form id="predictionForm" class="space-y-6">
-                    <div class="space-y-2">
-                        <label for="objectiveSelect" class="text-sm font-semibold text-white">Business Goal</label>
-                        <select id="objectiveSelect" name="business_objective" required class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
-                            <option value="" disabled selected class="bg-slate-900">Select a business objective</option>
-                            <option value="churn" class="bg-slate-900">Identify At-Risk Customers (Churn Prediction)</option>
-                            <option value="revenue" class="bg-slate-900">Forecast Future Revenue (Sales Prediction)</option>
-                            <option value="segmentation" class="bg-slate-900">Segment My Customer Base (Clustering)</option>
-                            <option value="anomaly" class="bg-slate-900">Detect Anomalies/Fraud (Outlier Detection)</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="fileInput" class="text-sm font-semibold text-white">Source Dataset (CSV)</label>
-                        <div class="relative" id="uploadZoneWrapper">
-                            <input id="fileInput" name="file" type="file" accept=".csv,text/csv" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                            <div id="uploadZone" class="group block w-full rounded-2xl border-dashed border-2 border-slate-700 bg-slate-900/50 px-4 py-5 text-center text-sm text-slate-300 hover:border-purple-500 transition cursor-pointer">
-                                <div class="flex flex-col items-center gap-1 pointer-events-none">
-                                    <span id="uploadLabel" class="text-white font-semibold">Upload CSV</span>
-                                    <span class="text-xs text-slate-500">Drop your file here or click to browse</span>
+            <form id="uploadForm" class="upload-form">
+                <!-- File Upload Zone -->
+                <div class="upload-zone-wrapper">
+                    <div class="upload-zone" id="dropZone">
+                        <input type="file" id="fileInput" accept=".csv" hidden>
+                        <div class="upload-zone-content" id="uploadZoneContent">
+                            <div class="upload-icon-wrapper">
+                                <div class="upload-icon-circle">
+                                    <span class="upload-icon">📁</span>
                                 </div>
                             </div>
+                            <h3 class="upload-title">Drop your CSV file here</h3>
+                            <p class="upload-subtitle">or <span class="click-to-browse">click to browse</span></p>
+                            <div class="upload-supported">
+                                <span class="supported-badge">✓ .CSV files only</span>
+                                <span class="supported-badge">✓ Auto-detection enabled</span>
+                            </div>
                         </div>
-                        <p id="fileNameDisplay" class="text-xs text-slate-500">No file selected.</p>
-                        <p class="text-xs text-slate-500">Ensure your target variable exists for supervised models.</p>
-                    </div>
 
-                    <div class="space-y-2">
-                        <label for="targetColumn" class="text-sm font-semibold text-white">Target Variable (Label)</label>
-                        <input id="targetColumn" type="text" placeholder="auto-detect if left blank" class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" />
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between text-sm text-slate-400">
-                            <label for="trainSplit" class="font-semibold text-white">Data Splitting Strategy</label>
-                            <div class="text-xs">Train: <span class="font-semibold" id="trainValue">80%</span> · Test: <span class="font-semibold" id="testValue">20%</span></div>
+                        <!-- File Info (shown after upload) -->
+                        <div class="file-info hidden" id="fileInfo">
+                            <div class="file-info-icon">✓</div>
+                            <div class="file-info-details">
+                                <div class="file-name" id="fileName">filename.csv</div>
+                                <div class="file-size" id="fileSize">0 KB</div>
+                            </div>
+                            <button type="button" class="file-remove" id="fileRemove">✕</button>
                         </div>
-                        <input id="trainSplit" type="range" min="10" max="95" step="1" value="80" class="w-full accent-purple-400" />
-                        <p class="text-xs text-slate-500">Adjust training allocation; remaining percentage is used for testing.</p>
                     </div>
 
-                    <div class="flex flex-wrap gap-4 text-sm text-slate-200">
-                        <label class="inline-flex items-center gap-2">
-                            <input id="previewToggle" type="checkbox" checked class="accent-purple-500" />
-                            Preview first 5 rows
-                        </label>
-                        <label class="inline-flex items-center gap-2">
-                            <input id="csvToggle" type="checkbox" class="accent-purple-500" />
-                            Return downloadable CSV
-                        </label>
+                    <!-- Progress Bar -->
+                    <div class="upload-progress hidden" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Uploading...</div>
                     </div>
+                </div>
 
-                    <button type="submit" id="runButton" class="w-full py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-purple-500/30 transition transform hover:scale-[1.02] hover:brightness-110">
-                        Run Prediction
-                    </button>
-                </form>
+                <!-- Configuration Options -->
+                <div class="config-section">
+                    <div class="config-row">
+                        <div class="form-group">
+                            <label for="targetColumn" class="form-label">
+                                <span class="label-text">Target Column</span>
+                                <span class="label-optional">Optional</span>
+                            </label>
+                            <input type="text" id="targetColumn" class="form-input"
+                                placeholder="e.g., price, churned, category">
+                            <span class="input-hint">Leave blank for clustering/unsupervised learning</span>
+                        </div>
 
-                <div class="space-y-5">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-bold text-white">Results</h2>
-                        <a id="downloadBtn" class="hidden px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-sm font-semibold text-white hover:bg-white/15 transition" href="#" download>Download CSV</a>
-                    </div>
-                    <div id="statusMessage" role="status" class="text-sm text-slate-300">Waiting for input...</div>
-                    <div id="metadataPanel" class="hidden"></div>
-                    <div id="predictionPanel"></div>
-                    <div id="previewSection" class="hidden">
-                        <h3 class="text-sm font-semibold text-slate-200 mb-2">Preview</h3>
-                        <div class="overflow-x-auto rounded-2xl border border-white/10 bg-white/5">
-                            <table id="previewTable" class="min-w-full text-sm text-left text-slate-100">
-                                <thead class="bg-white/10"></thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="form-group">
+                            <label for="businessObjective" class="form-label">
+                                <span class="label-text">Business Objective</span>
+                            </label>
+                            <div class="select-wrapper">
+                                <select id="businessObjective" class="form-select">
+                                    <option value="">Select your goal...</option>
+                                    <option value="churn">🎯 Predict Customer Churn</option>
+                                    <option value="revenue">💰 Forecast Revenue/Sales</option>
+                                    <option value="segment">👥 Customer Segmentation</option>
+                                    <option value="fraud">🚨 Detect Fraud/Anomalies</option>
+                                    <option value="classification">📋 General Classification</option>
+                                    <option value="regression">📈 General Regression</option>
+                                    <option value="other">🤖 Let AI Decide</option>
+                                </select>
+                                <span class="select-arrow">▼</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-analyze" id="analyzeBtn">
+                    <span class="btn-text">Analyze with AI</span>
+                    <span class="btn-sparkle">✨</span>
+                    <div class="btn-shine"></div>
+                </button>
+
+                <!-- Status Indicator -->
+                <div class="status-indicator hidden" id="statusIndicator">
+                    <div class="status-spinner"></div>
+                    <span class="status-text" id="statusText">Processing your dataset...</span>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="results-section hidden">
+        <div class="results-container">
+            <div class="results-header">
+                <h2 class="section-title">Analysis Results</h2>
+                <button class="btn-reset" id="resetBtn">
+                    <span>🔄</span>
+                    <span>Analyze Another</span>
+                </button>
             </div>
 
-            <footer class="mt-10 text-center text-xs text-slate-600">Powered by dev-edward-ai</footer>
-        </main>
-    </div>
+            <div id="resultsContent" class="results-content">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </section>
 
-    <script src="app.js" type="module"></script>
+    <!-- Models Showcase -->
+    <section id="models" class="models-section">
+        <div class="section-header">
+            <h2 class="section-title">Supported ML Models</h2>
+            <p class="section-subtitle">Industry-leading algorithms for every use case</p>
+        </div>
+
+        <div class="models-grid">
+            <div class="model-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🎯</span>
+                    Classification
+                </h3>
+                <div class="models-list">
+                    <div class="model-item">Logistic Regression</div>
+                    <div class="model-item">Decision Tree</div>
+                    <div class="model-item">K-Nearest Neighbors</div>
+                    <div class="model-item">Support Vector Machine</div>
+                    <div class="model-item">Random Forest</div>
+                    <div class="model-item">Naive Bayes</div>
+                    <div class="model-item">XGBoost</div>
+                </div>
+            </div>
+
+            <div class="model-category">
+                <h3 class="category-title">
+                    <span class="category-icon">📈</span>
+                    Regression
+                </h3>
+                <div class="models-list">
+                    <div class="model-item">Linear Regression</div>
+                    <div class="model-item">Decision Tree Regressor</div>
+                    <div class="model-item">KNN Regressor</div>
+                    <div class="model-item">Random Forest Regressor</div>
+                    <div class="model-item">XGBoost Regressor</div>
+                </div>
+            </div>
+
+            <div class="model-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🔍</span>
+                    Unsupervised
+                </h3>
+                <div class="models-list">
+                    <div class="model-item">K-Means Clustering</div>
+                    <div class="model-item">PCA</div>
+                    <div class="model-item">Isolation Forest</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="brand-icon">🤖</span>
+                <span class="brand-text">AutoML Intelligence</span>
+            </div>
+            <div class="footer-links">
+                <a href="http://localhost:8000/docs" target="_blank" class="footer-link">API Documentation</a>
+                <a href="https://github.com/dev-edward-ai" target="_blank" class="footer-link">GitHub</a>
+                <a href="#" class="footer-link">Privacy</a>
+            </div>
+            <div class="footer-credit">
+                Built with <span class="heart">❤️</span> by <strong>dev-edward-ai</strong>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
 </body>
+
 </html>

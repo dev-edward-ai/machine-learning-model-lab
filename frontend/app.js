@@ -1,348 +1,722 @@
-const API_BASE_URL = "http://localhost:8000";
+// ===================================
+// AutoML Intelligence Platform
+// Premium Frontend with Animations
+// ===================================
 
-const form = document.getElementById("predictionForm");
-const objectiveSelect = document.getElementById("objectiveSelect");
-const fileInput = document.getElementById("fileInput");
-const targetColumnInput = document.getElementById("targetColumn");
-const trainSplitInput = document.getElementById("trainSplit");
-const trainValueEl = document.getElementById("trainValue");
-const testValueEl = document.getElementById("testValue");
-const usePreviewToggle = document.getElementById("previewToggle");
-const returnCsvToggle = document.getElementById("csvToggle");
-const statusMessage = document.getElementById("statusMessage");
-const metadataPanel = document.getElementById("metadataPanel");
-const predictionPanel = document.getElementById("predictionPanel");
-const previewSection = document.getElementById("previewSection");
-const previewTable = document.getElementById("previewTable");
-const downloadBtn = document.getElementById("downloadBtn");
-const submitButton = form.querySelector("button[type='submit']");
-const fileNameDisplay = document.getElementById("fileNameDisplay");
-const uploadZone = document.getElementById("uploadZone");
-const uploadLabel = document.getElementById("uploadLabel");
+const API_BASE_URL = 'http://localhost:8000';
 
-// Default model choices mapped from the high-level business objective.
-const objectiveToModel = {
-    churn: "logistic_regression",
-    revenue: "linear_regression",
-    segmentation: "kmeans",
-    anomaly: "isolation_forest"
-};
+// ===================================
+// Particle System
+// ===================================
 
-let currentDownloadUrl = null;
+class ParticleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.mouseX = 0;
+        this.mouseY = 0;
 
-const toneColors = {
-    info: "#8a93b2",
-    success: "#5cf4d4",
-    error: "#ff8fa3"
-};
+        this.resize();
+        this.init();
+        this.animate();
 
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!fileInput.files.length) {
-        setStatus("Please choose a CSV file first.", "error");
-        return;
+        window.addEventListener('resize', () => this.resize());
+        document.addEventListener('mousemove', (e) => {
+            this.mouseX = e.clientX;
+            this.mouseY = e.clientY;
+        });
     }
-    submitButton.disabled = true;
-    submitButton.textContent = "Running...";
-    setStatus("Processing dataset...");
 
-    try {
-        const formData = new FormData();
-        const objectiveValue = objectiveSelect ? objectiveSelect.value : "";
-        if (objectiveValue) {
-            formData.append("objective", objectiveValue);
-            // Pick a backend model based on the chosen objective; fall back to logistic_regression.
-            const mappedModel = objectiveToModel[objectiveValue] || "logistic_regression";
-            formData.append("model_name", mappedModel);
-        } else {
-            // Backend requires model_name; use a sensible default if no objective chosen.
-            formData.append("model_name", "logistic_regression");
-        }
-        formData.append("use_preview", usePreviewToggle.checked ? "true" : "false");
-        formData.append("return_csv", returnCsvToggle.checked ? "true" : "false");
-        if (targetColumnInput.value.trim()) {
-            formData.append("target_column", targetColumnInput.value.trim());
-        }
-        if (trainSplitInput && trainSplitInput.value) {
-            formData.append("train_set_size", trainSplitInput.value); // percentage for training
-        }
-        formData.append("file", fileInput.files[0]);
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = document.documentElement.scrollHeight;
+    }
 
-        const response = await fetch(`${API_BASE_URL}/predict`, {
-            method: "POST",
-            body: formData
+    init() {
+        const particleCount = Math.min(150, Math.floor((this.canvas.width * this.canvas.height) / 15000));
+        for (let i = 0; i < particleCount; i++) {
+            this.particles.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2 + 1,
+                opacity: Math.random() * 0.5 + 0.2
+            });
+        }
+    }
+
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.particles.forEach((particle, i) => {
+            // Update position
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+
+            // Mouse interaction
+            const dx = this.mouseX - particle.x;
+            const dy = this.mouseY - particle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 100) {
+                const force = (100 - distance) / 100;
+                particle.vx -= (dx / distance) * force * 0.1;
+                particle.vy -= (dy / distance) * force * 0.1;
+            }
+
+            // Wrap around screen
+            if (particle.x < 0) particle.x = this.canvas.width;
+            if (particle.x > this.canvas.width) particle.x = 0;
+            if (particle.y < 0) particle.y = this.canvas.height;
+            if (particle.y > this.canvas.height) particle.y = 0;
+
+            // Draw particle
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(139, 92, 246, ${particle.opacity})`;
+            this.ctx.fill();
+
+            // Draw connections
+            this.particles.slice(i + 1).forEach(particle2 => {
+                const dx = particle.x - particle2.x;
+                const dy = particle.y - particle2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 100) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(particle.x, particle.y);
+                    this.ctx.lineTo(particle2.x, particle2.y);
+                    this.ctx.strokeStyle = `rgba(139, 92, 246, ${0.15 * (1 - distance / 100)})`;
+                    this.ctx.lineWidth = 1;
+                    this.ctx.stroke();
+                }
+            });
         });
 
-        if (!response.ok) {
-            const errorPayload = await response.json().catch(() => ({}));
-            let detail = errorPayload.detail || "Prediction failed.";
-            const isObjectLike = typeof detail === "object" && detail !== null;
-            if (isObjectLike) {
-                // Surface full validation or server error payloads instead of [object Object]
-                detail = JSON.stringify(detail);
-            }
-            throw new Error(detail);
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// ===================================
+// Typing Animation
+// ===================================
+
+class TypingEffect {
+    constructor(element, texts, typingSpeed = 80, deletingSpeed = 50, pauseDuration = 2000) {
+        this.element = element;
+        this.texts = texts;
+        this.typingSpeed = typingSpeed;
+        this.deletingSpeed = deletingSpeed;
+        this.pauseDuration = pauseDuration;
+        this.currentTextIndex = 0;
+        this.currentCharIndex = 0;
+        this.isDeleting = false;
+
+        this.type();
+    }
+
+    type() {
+        const currentText = this.texts[this.currentTextIndex];
+
+        if (this.isDeleting) {
+            this.element.textContent = currentText.substring(0, this.currentCharIndex - 1);
+            this.currentCharIndex--;
+        } else {
+            this.element.textContent = currentText.substring(0, this.currentCharIndex + 1);
+            this.currentCharIndex++;
         }
 
-        const data = await response.json();
-        hydrateUiWithResults(data);
-        setStatus("Prediction complete.", "success");
-    } catch (error) {
-        console.error(error);
-        setStatus(error.message || "Unexpected error during prediction.", "error");
-        predictionPanel.innerHTML = "";
-        metadataPanel.innerHTML = "";
-        renderPreview(null);
-        setDownloadLink(null, null);
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = "Run Prediction";
+        // Add cursor
+        this.element.innerHTML += '<span class="typing-cursor">|</span>';
+
+        let timeout = this.isDeleting ? this.deletingSpeed : this.typingSpeed;
+
+        if (!this.isDeleting && this.currentCharIndex === currentText.length) {
+            timeout = this.pauseDuration;
+            this.isDeleting = true;
+        } else if (this.isDeleting && this.currentCharIndex === 0) {
+            this.isDeleting = false;
+            this.currentTextIndex = (this.currentTextIndex + 1) % this.texts.length;
+            timeout = 500;
+        }
+
+        setTimeout(() => this.type(), timeout);
+    }
+}
+
+// ===================================
+// Smooth Scroll
+// ===================================
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// ===================================
+// File Upload Handling
+// ===================================
+
+const fileInput = document.getElementById('fileInput');
+const dropZone = document.getElementById('dropZone');
+const uploadZoneContent = document.getElementById('uploadZoneContent');
+const fileInfo = document.getElementById('fileInfo');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+const fileRemove = document.getElementById('fileRemove');
+const uploadProgress = document.getElementById('uploadProgress');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+
+let selectedFile = null;
+
+// Click to browse
+dropZone.addEventListener('click', (e) => {
+    if (e.target !== fileRemove && !fileRemove.contains(e.target)) {
+        fileInput.click();
     }
 });
 
-if (fileInput) {
-    const setUploadNeutral = () => {
-        if (!uploadZone) return;
-        uploadZone.classList.remove("border-emerald-500", "bg-emerald-500/10", "border-purple-500", "bg-purple-500/5");
-        uploadZone.classList.add("border-slate-700", "bg-slate-900/50");
-    };
+// File selection
+fileInput.addEventListener('change', handleFileSelect);
 
-    const setUploadSuccess = (fileName) => {
-        if (uploadZone) {
-            uploadZone.classList.remove("border-slate-700", "bg-slate-900/50", "border-purple-500", "bg-purple-500/5");
-            uploadZone.classList.add("border-emerald-500", "bg-emerald-500/10");
-        }
-        if (uploadLabel) {
-            uploadLabel.textContent = fileName ? `✅ Selected: ${fileName}` : "Upload CSV";
-        }
-        if (fileNameDisplay) {
-            if (fileName) {
-                fileNameDisplay.textContent = `Selected: ${fileName}`;
-                fileNameDisplay.classList.remove("text-slate-500");
-                fileNameDisplay.classList.add("text-purple-200");
-            } else {
-                fileNameDisplay.textContent = "No file selected.";
-                fileNameDisplay.classList.remove("text-purple-200");
-                fileNameDisplay.classList.add("text-slate-500");
-            }
-        }
-    };
-
-    const setUploadActive = () => {
-        if (!uploadZone) return;
-        uploadZone.classList.remove("border-emerald-500", "bg-emerald-500/10", "border-slate-700", "bg-slate-900/50");
-        uploadZone.classList.add("border-purple-500", "bg-purple-500/5");
-    };
-
-    fileInput.addEventListener("change", () => {
-        if (fileInput.files.length) {
-            const fileName = fileInput.files[0].name;
-            setUploadSuccess(fileName);
-        } else {
-            setUploadNeutral();
-            if (uploadLabel) uploadLabel.textContent = "Upload CSV";
-        }
-    });
-
-    if (uploadZone) {
-        uploadZone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            setUploadActive();
-        });
-
-        uploadZone.addEventListener("dragleave", (e) => {
-            e.preventDefault();
-            setUploadNeutral();
-        });
-
-        uploadZone.addEventListener("drop", (e) => {
-            e.preventDefault();
-            const dt = e.dataTransfer;
-            if (!dt || !dt.files || !dt.files.length) {
-                setUploadNeutral();
-                return;
-            }
-            const file = dt.files[0];
-            const transfer = new DataTransfer();
-            transfer.items.add(file);
-            fileInput.files = transfer.files;
-            setUploadSuccess(file.name);
-        });
+function handleFileSelect(e) {
+    const files = e.target.files || e.dataTransfer?.files;
+    if (files && files.length > 0) {
+        selectedFile = files[0];
+        displayFileInfo(selectedFile);
     }
 }
 
-function hydrateUiWithResults(data) {
-    renderResults(data);
-    renderPreview(data.preview);
-    setDownloadLink(data.csv_base64, data.csv_filename);
+function displayFileInfo(file) {
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+
+    uploadZoneContent.classList.add('hidden');
+    fileInfo.classList.remove('hidden');
+    dropZone.classList.add('has-file');
 }
 
-function renderResults(data) {
-    const insight = data.business_insights || data.business_summary || {};
-    const metadata = data.metadata || {};
-    const modelType = data.model_type || metadata.task_type || "";
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
 
-    const intent = (objectiveSelect?.value || "").toLowerCase();
-    const accent = resolveAccent(intent, modelType);
-    const isAlert = ["churn", "fraud", "anomaly"].some((needle) => intent.includes(needle));
-    const isGood = intent.includes("revenue") || intent.includes("sales");
+// Remove file
+fileRemove.addEventListener('click', (e) => {
+    e.stopPropagation();
+    resetFileUpload();
+});
 
-    const rows = typeof metadata.rows === "number" ? metadata.rows : "-";
-    const accuracy = metadata.accuracy ?? "N/A";
+function resetFileUpload() {
+    selectedFile = null;
+    fileInput.value = '';
+    uploadZoneContent.classList.remove('hidden');
+    fileInfo.classList.add('hidden');
+    dropZone.classList.remove('has-file');
+}
 
-    predictionPanel.innerHTML = `
-        <div class="bg-gradient-to-br from-gray-900 to-black border border-purple-500/20 rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-start gap-3">
-                <div class="shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${isAlert ? "bg-red-500/20 shadow-[0_0_25px_rgba(248,113,113,0.35)]" : "bg-emerald-500/15 shadow-[0_0_25px_rgba(16,185,129,0.25)]"}">
-                    <span class="text-lg">${isAlert ? "⚠️" : "✨"}</span>
-                </div>
-                <div class="space-y-2">
-                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Executive Summary</div>
-                    <div class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${
-                        isAlert
-                            ? "from-red-400 to-orange-400"
-                            : isGood
-                            ? "from-emerald-400 to-cyan-400"
-                            : "from-indigo-400 to-purple-400"
-                    }">
-                        ${insight.headline || "Business insight ready."}
-                    </div>
-                    <div class="bg-white/5 rounded-xl p-4 mt-2 border-l-4 border-purple-500 text-slate-300">
-                        <div class="text-sm font-semibold text-white">Recommended Action</div>
-                        <div class="mt-1 text-sm">${
-                            insight.recommended_action || "Next step will appear here once predictions are generated."
-                        }</div>
-                    </div>
-                    ${
-                        insight.detailed_insight
-                            ? `<div class="text-sm text-slate-400">${insight.detailed_insight}</div>`
-                            : ""
-                    }
-                </div>
+// Drag and drop
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].name.endsWith('.csv')) {
+        fileInput.files = files;
+        handleFileSelect({ target: { files } });
+    } else {
+        showNotification('⚠️ Please upload a CSV file', 'warning');
+    }
+});
+
+// ===================================
+// Form Submission
+// ===================================
+
+const uploadForm = document.getElementById('uploadForm');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const statusIndicator = document.getElementById('statusIndicator');
+const statusText = document.getElementById('statusText');
+const resultsSection = document.getElementById('results');
+const resultsContent = document.getElementById('resultsContent');
+const resetBtn = document.getElementById('resetBtn');
+
+uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!selectedFile) {
+        showNotification('⚠️ Please select a CSV file first', 'warning');
+        return;
+    }
+
+    // Show loading state
+    analyzeBtn.disabled = true;
+    analyzeBtn.querySelector('.btn-text').textContent = 'Analyzing...';
+    statusIndicator.classList.remove('hidden');
+    statusText.textContent = 'Processing your dataset...';
+    uploadProgress.classList.remove('hidden');
+    progressFill.style.width = '20%';
+
+    try {
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const targetColumn = document.getElementById('targetColumn').value.trim();
+        if (targetColumn) {
+            formData.append('target_col', targetColumn);
+        }
+
+        const businessObjective = document.getElementById('businessObjective').value;
+        if (businessObjective) {
+            formData.append('business_objective', businessObjective);
+            formData.append('user_intent', businessObjective);
+        }
+
+        // Update progress
+        progressFill.style.width = '40%';
+        statusText.textContent = 'Running model tournament...';
+
+        // Make API request
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
+            method: 'POST',
+            body: formData
+        });
+
+        progressFill.style.width = '70%';
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail?.error || errorData.detail || 'Analysis failed');
+        }
+
+        const data = await response.json();
+
+        // Complete progress
+        progressFill.style.width = '100%';
+        statusText.textContent = 'Analysis complete!';
+
+        // Display results
+        setTimeout(() => {
+            displayResults(data);
+            uploadProgress.classList.add('hidden');
+            statusIndicator.classList.add('hidden');
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+            showNotification('✅ Analysis completed successfully!', 'success');
+        }, 500);
+
+    } catch (error) {
+        console.error('Error:', error);
+        uploadProgress.classList.add('hidden');
+        statusIndicator.classList.add('hidden');
+
+        showNotification(`❌ ${error.message}`, 'error');
+
+        resultsContent.innerHTML = `
+            <div class="error-card" style="
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+                border: 2px solid rgba(239, 68, 68, 0.3);
+                border-radius: 20px;
+                padding: 2rem;
+                text-align: center;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <h3 style="color: #ef4444; margin-bottom: 1rem; font-family: var(--font-display);">Analysis Failed</h3>
+                <p style="color: #fca5a5; margin-bottom: 1rem;">${error.message}</p>
+                <p style="color: #9ca3af; font-size: 0.9rem;">
+                    Please check your CSV file format and try again. Ensure it has a header row and clean data.
+                </p>
             </div>
+        `;
+        resultsSection.classList.remove('hidden');
+    } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.querySelector('.btn-text').textContent = 'Analyze with AI';
+        progressFill.style.width = '0%';
+    }
+});
 
-            <details class="mt-5 bg-slate-900/70 border border-white/10 rounded-xl p-4">
-                <summary class="cursor-pointer font-semibold text-slate-200">Technical Details</summary>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3 text-sm text-slate-300">
-                    <div class="space-y-1">
-                        <div class="text-xs uppercase text-slate-500">Rows</div>
-                        <div class="font-semibold">${rows}</div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="text-xs uppercase text-slate-500">Model Type</div>
-                        <div class="font-semibold">${modelType || "-"}</div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="text-xs uppercase text-slate-500">Accuracy</div>
-                        <div class="font-semibold">${accuracy}</div>
-                    </div>
+// ===================================
+// Display Results
+// ===================================
+
+function displayResults(data) {
+    const {
+        recommended_model,
+        recommended_model_name,
+        task_type,
+        metric_value,
+        score,
+        reasoning,
+        business_insights,
+        model_explanation,
+        preview_data
+    } = data;
+
+    const modelName = recommended_model || recommended_model_name;
+    const finalScore = metric_value || score;
+
+    let html = '';
+
+    // Main Result Card
+    html += `
+        <div class="result-card-main" style="
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.5s ease-out;
+        ">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <span style="
+                    padding: 0.5rem 1rem;
+                    background: var(--gradient-primary);
+                    color: white;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                ">${task_type || 'Analysis'}</span>
+                <h2 style="
+                    font-family: var(--font-display);
+                    font-size: 2rem;
+                    font-weight: 700;
+                    flex: 1;
+                    margin: 0;
+                ">${modelName}</h2>
+            </div>
+            
+            ${reasoning ? `
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.7;">
+                    ${reasoning}
+                </p>
+            ` : ''}
+            
+            ${finalScore !== undefined ? `
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1.5rem;
+                    background: rgba(0, 0, 0, 0.3);
+                    border-radius: 16px;
+                    margin-bottom: 1.5rem;
+                ">
+                    <span style="color: var(--text-muted); font-size: 1rem;">Model Performance</span>
+                    <span style="
+                        font-family: var(--font-display);
+                        font-size: 2.5rem;
+                        font-weight: 700;
+                        background: var(--gradient-success);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    ">${(finalScore * 100).toFixed(2)}%</span>
                 </div>
-            </details>
+            ` : ''}
+            
+            ${business_insights && business_insights.headline ? `
+                <div style="
+                    background: rgba(16, 185, 129, 0.1);
+                    border-left: 4px solid var(--accent-green);
+                    padding: 1.5rem;
+                    border-radius: 12px;
+                ">
+                    <div style="
+                        font-weight: 700;
+                        color: var(--accent-green);
+                        margin-bottom: 0.75rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    ">
+                        📊 Business Insights
+                    </div>
+                    <p style="margin: 0; color: var(--text-secondary); line-height: 1.7;">
+                        ${business_insights.headline}
+                    </p>
+                    ${business_insights.recommended_action ? `
+                        <p style="
+                            margin-top: 0.75rem;
+                            color: var(--accent-green);
+                            font-weight: 600;
+                        ">
+                            💡 ${business_insights.recommended_action}
+                        </p>
+                    ` : ''}
+                </div>
+            ` : ''}
         </div>
     `;
 
-    // Hide legacy metadata grid
-    metadataPanel.innerHTML = "";
+    // Model Explanation
+    if (model_explanation) {
+        html += `
+            <div class="explanation-card" style="
+                background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(236, 72, 153, 0.3);
+                border-radius: 24px;
+                padding: 2.5rem;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                animation: slideIn 0.5s ease-out 0.2s backwards;
+            ">
+                <h3 style="
+                    font-family: var(--font-display);
+                    font-size: 1.75rem;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                ">
+                    <span>💡</span>
+                    Understanding Your Model
+                </h3>
+                
+                ${model_explanation.task_context ? `
+                    <div style="
+                        background: rgba(59, 130, 246, 0.1);
+                        padding: 1rem;
+                        border-radius: 12px;
+                        margin-bottom: 1.5rem;
+                        border-left: 4px solid var(--accent-blue);
+                    ">
+                        <p style="margin: 0; font-weight: 600;">${model_explanation.task_context}</p>
+                    </div>
+                ` : ''}
+                
+                ${model_explanation.analogy ? `
+                    <h4 style="margin-bottom: 0.75rem; font-size: 1.25rem;">${model_explanation.analogy}</h4>
+                ` : ''}
+                
+                ${model_explanation.how_it_works ? `
+                    <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem;">
+                        ${model_explanation.how_it_works}
+                    </p>
+                ` : ''}
+                
+                ${model_explanation.real_world_example ? `
+                    <div style="
+                        background: rgba(0, 0, 0, 0.3);
+                        border-left: 4px solid var(--accent-pink);
+                        padding: 1.5rem;
+                        border-radius: 12px;
+                        margin: 1.5rem 0;
+                    ">
+                        ${model_explanation.real_world_example}
+                    </div>
+                ` : ''}
+                
+                ${model_explanation.best_for ? `
+                    <p style="
+                        margin-top: 1.5rem;
+                        padding-top: 1.5rem;
+                        border-top: 1px solid var(--border-color);
+                        color: var(--accent-green);
+                        font-weight: 600;
+                    ">
+                        ✅ Best for: ${model_explanation.best_for}
+                    </p>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Preview Data
+    if (preview_data && preview_data.length > 0) {
+        html += `
+            <div class="data-preview-card" style="
+                background: rgba(17, 24, 39, 0.6);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-color);
+                border-radius: 24px;
+                padding: 2rem;
+                overflow: hidden;
+                animation: slideIn 0.5s ease-out 0.4s backwards;
+            ">
+                <h4 style="
+                    font-family: var(--font-display);
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    font-size: 1.5rem;
+                ">
+                    <span>📋</span>
+                    Data Preview
+                </h4>
+                <div style="overflow-x: auto;">
+                    <table style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 0.9rem;
+                    ">
+                        <thead>
+                            <tr style="background: rgba(139, 92, 246, 0.1);">
+                                ${Object.keys(preview_data[0]).map(key => `
+                                    <th style="
+                                        padding: 1rem;
+                                        text-align: left;
+                                        border-bottom: 2px solid var(--border-color);
+                                        font-weight: 600;
+                                        white-space: nowrap;
+                                    ">${key}</th>
+                                `).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${preview_data.map((row, idx) => `
+                                <tr style="background: ${idx % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'transparent'};">
+                                    ${Object.values(row).map(val => `
+                                        <td style="
+                                            padding: 0.875rem 1rem;
+                                            border-bottom: 1px solid rgba(139, 92, 246, 0.05);
+                                            color: var(--text-secondary);
+                                        ">${val}</td>
+                                    `).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    resultsContent.innerHTML = html;
+    resultsSection.classList.remove('hidden');
 }
 
-function resolveAccent(intent, modelType) {
-    const danger = {
-        gradient: "linear-gradient(135deg,#ff5f6d 0%,#ffc371 100%)",
-        text: "#0b0b0b"
+// Reset button
+resetBtn.addEventListener('click', () => {
+    resultsSection.classList.add('hidden');
+    resetFileUpload();
+    uploadForm.reset();
+
+    // Scroll to upload section
+    document.getElementById('upload').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ===================================
+// Notifications
+// ===================================
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+
+    const colors = {
+        success: 'rgba(16, 185, 129, 0.9)',
+        error: 'rgba(239, 68, 68, 0.9)',
+        warning: 'rgba(245, 158, 11, 0.9)',
+        info: 'rgba(59, 130, 246, 0.9)'
     };
-    const success = {
-        gradient: "linear-gradient(135deg,#32d978 0%,#8ef0b1 100%)",
-        text: "#0b0b0b"
-    };
-    const neutral = {
-        gradient: "linear-gradient(135deg,#5a6fff 0%,#9fa8ff 100%)",
-        text: "#0b0b0b"
-    };
 
-    const isDanger = ["churn", "fraud", "anomaly"].some((needle) =>
-        intent.includes(needle)
-    );
-    const isSales = intent.includes("sales") || intent.includes("revenue");
-
-    if (isDanger || modelType === "classification" || modelType === "anomaly") {
-        return danger;
-    }
-    if (isSales || modelType === "regression") {
-        return success;
-    }
-    return neutral;
-}
-
-function renderPreview(rows) {
-    if (!Array.isArray(rows) || rows.length === 0) {
-        previewSection.style.display = "none";
-        previewTable.querySelector("thead").innerHTML = "";
-        previewTable.querySelector("tbody").innerHTML = "";
-        return;
-    }
-
-    const headers = Object.keys(rows[0] ?? {});
-    previewTable.querySelector("thead").innerHTML = `
-        <tr>
-            ${headers.map((header) => `<th>${header}</th>`).join("")}
-        </tr>
+    notification.style.cssText = `
+        position: fixed;
+        top: 6rem;
+        right: 2rem;
+        background: ${colors[type]};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 400px;
     `;
-    previewTable.querySelector("tbody").innerHTML = rows
-        .map(
-            (row) => `
-                <tr>
-                    ${headers.map((header) => `<td>${row[header] ?? ""}</td>`).join("")}
-                </tr>
-            `
-        )
-        .join("");
-    previewSection.style.display = "block";
+
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
 }
 
-function setDownloadLink(csvBase64, filename) {
-    if (currentDownloadUrl) {
-        URL.revokeObjectURL(currentDownloadUrl);
-        currentDownloadUrl = null;
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
-    if (!csvBase64) {
-        downloadBtn.style.display = "none";
-        downloadBtn.removeAttribute("href");
-        return;
+    
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
     }
-    const blob = base64ToBlob(csvBase64, "text/csv;charset=utf-8;");
-    currentDownloadUrl = URL.createObjectURL(blob);
-    downloadBtn.href = currentDownloadUrl;
-    downloadBtn.textContent = "Download Actionable Report";
-    downloadBtn.download = filename || "predictions.csv";
-    downloadBtn.style.display = "inline-flex";
-    downloadBtn.className = "border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 rounded-lg py-2 px-4 transition-all inline-flex items-center justify-center";
-}
+`;
+document.head.appendChild(style);
 
-function base64ToBlob(base64, mimeType) {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i += 1) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+// ===================================
+// Initialize
+// ===================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🤖 AutoML Intelligence Platform initialized');
+
+    // Initialize particle system
+    const canvas = document.getElementById('particleCanvas');
+    if (canvas) {
+        new ParticleSystem(canvas);
+        console.log('✨ Particle system activated');
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: mimeType });
-}
 
-function setStatus(message, tone = "info") {
-    statusMessage.textContent = message;
-    statusMessage.style.color = toneColors[tone] || toneColors.info;
-}
-// No model dropdown needed; just prompt user to upload and choose objective.
-setStatus("Upload a CSV, pick your goal, and run the analysis.", "info");
+    // Initialize typing effect
+    const typingElement = document.getElementById('typingText');
+    if (typingElement) {
+        const texts = [
+            'Upload your CSV and let AI find the perfect model automatically',
+            'Powered by 10+ machine learning algorithms with real-world explanations',
+            'From classification to clustering - we handle it all intelligently'
+        ];
+        new TypingEffect(typingElement, texts);
+        console.log('⌨️ Typing animation started');
+    }
 
-// keep train/test percentages in sync
-if (trainSplitInput && trainValueEl && testValueEl) {
-    const syncSplit = () => {
-        const trainPct = Number(trainSplitInput.value);
-        const testPct = 100 - trainPct;
-        trainValueEl.textContent = `${trainPct}%`;
-        testValueEl.textContent = `${testPct}%`;
-    };
-    trainSplitInput.addEventListener("input", syncSplit);
-    syncSplit();
-}
+    console.log('📡 API Base URL:', API_BASE_URL);
+    console.log('✅ All systems ready!');
+});

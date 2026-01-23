@@ -1,4 +1,5 @@
 import io
+import base64
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -6,6 +7,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from ..schemas.model import BusinessInsights, PredictionMetadata, PredictionResponse
 from ..services.prediction import model_registry
+from ..services.auto_model import recommend_and_run_best_model
 
 router = APIRouter(prefix="/predict", tags=["prediction"])
 
@@ -49,6 +51,57 @@ async def run_prediction(
         csv_filename=result.csv_filename,
         business_insights=business_insights,
     )
+
+
+@router.post("/analyze")
+async def analyze_dataset(
+    file: UploadFile = File(..., description="CSV dataset to analyze"),
+    target_col: Optional[str] = Form(None, description="Target column name (optional for clustering)"),
+    user_intent: Optional[str] = Form("analyze data", description="User's goal description"),
+    business_objective: Optional[str] = Form(None, description="Business objective category"),
+):
+    """
+    Automatic model detection and analysis endpoint.
+    Runs tournament across all available models and returns best fit with explanations.
+    """
+    try:
+        # Read CSV
+        df = await _read_csv(file)
+        
+        # Run AutoML
+        result = recommend_and_run_best_model(
+            df=df,
+            target_col=target_col,
+            user_intent=user_intent or "analyze data",
+            business_objective=business_objective
+        )
+        
+        # Prepare response
+        response = {
+            "recommended_model": result["recommended_model_name"],
+            "recommended_model_name": result["recommended_model_name"],
+            "task_type": result["task_type"],
+            "metric_value": result["metric_value"],
+            "score": result["metric_value"],
+            "reasoning": result["reasoning"],
+            "business_insights": result.get("business_summary", {}),
+            "model_explanation": result.get("model_explanation", {}),
+        }
+        
+        # Add preview data (first 5 rows with predictions)
+        if len(df) > 0:
+            preview_df = df.head(5).copy()
+            response["preview_data"] = preview_df.to_dict(orient="records")
+        else:
+            response["preview_data"] = []
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": str(e)}
+        )
 
 
 async def _read_csv(upload_file: UploadFile) -> pd.DataFrame:
