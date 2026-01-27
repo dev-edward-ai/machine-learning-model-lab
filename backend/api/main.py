@@ -7,6 +7,7 @@ import io
 from .routers.models import router as models_router
 from .routers.predict import router as predict_router
 from .services.auto_model import recommend_and_run_best_model
+from .services.smart_dispatcher import smart_dispatch, get_all_scenarios
 
 tags_metadata = [
     {
@@ -21,6 +22,10 @@ tags_metadata = [
         "name": "automl",
         "description": "Automatic model detection and analysis.",
     },
+    {
+        "name": "smart_dispatcher",
+        "description": "Smart Dispatcher - Model tournament and scenario detection.",
+    },
 ]
 
 app = FastAPI(
@@ -28,8 +33,8 @@ app = FastAPI(
     version="2.0.0",
     description=(
         "Professional AutoML platform with automatic model detection, real-world explanations, "
-        "and support for 10+ machine learning algorithms including Linear/Logistic Regression, "
-        "Decision Tree, KNN, SVM, Random Forest, K-Means, Naive Bayes, PCA, and XGBoost."
+        "and support for 13+ machine learning algorithms including Linear/Logistic Regression, "
+        "Decision Tree, KNN, SVM, Random Forest, K-Means, Naive Bayes, PCA, XGBoost, and Isolation Forest."
     ),
     openapi_tags=tags_metadata,
 )
@@ -44,11 +49,6 @@ app.add_middleware(
 
 app.include_router(models_router)
 app.include_router(predict_router)
-
-
-@app.get("/ping", tags=["health"])
-def ping():
-    return {"msg": "pong", "status": "healthy"}
 
 
 @app.post("/analyze", tags=["automl"])
@@ -103,3 +103,50 @@ async def analyze_dataset(
             detail={"error": str(e)}
         )
 
+
+@app.post("/smart-dispatch", tags=["smart_dispatcher"])
+async def smart_dispatcher_analysis(
+    file: UploadFile = File(..., description="CSV dataset to analyze"),
+    target_col: Optional[str] = Form(None, description="Target column name (optional for clustering)"),
+    business_objective: Optional[str] = Form(None, description="Business objective category"),
+):
+    """
+    Smart Dispatcher - Run model tournament and return top performers with scenario detection.
+    Shows performance metrics (80% accuracy style) and matches to real-world scenarios.
+    """
+    try:
+        # Read CSV
+        content = await file.read()
+        df = pd.read_csv(io.BytesIO(content))
+        await file.close()
+        
+        # Run smart dispatch
+        result = smart_dispatch(
+            df=df,
+            target_col=target_col,
+            business_objective=business_objective
+        )
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": str(e)}
+        )
+
+
+@app.get("/scenarios", tags=["smart_dispatcher"])
+def list_scenarios():
+    """
+    Get all 13 real-world ML scenarios available in the platform.
+    """
+    return {
+        "scenarios": get_all_scenarios(),
+        "total_count": len(get_all_scenarios())
+    }
+
+
+@app.get("/ping", tags=["health"])
+def ping():
+    return {"msg": "pong", "status": "healthy"}

@@ -1,24 +1,26 @@
 # 🤖 AutoML Intelligence Platform
 
-**Professional AutoML platform with automatic model detection, real-world explanations, and Docker deployment.**
+**Professional AutoML platform with Smart Dispatcher, 13 real-world scenarios, and production deployment.**
 
-Transform your CSV data into intelligent insights with zero configuration. Our platform automatically detects the best machine learning model for your data and explains it using real-world analogies.
+Transform your CSV data into intelligent insights with zero configuration. Our platform automatically detects the best machine learning model, runs a model tournament showing top 3 performers with accuracy scores, and explains everything using real-world examples.
 
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)
 ![Python](https://img.shields.io/badge/Python-3.11-green?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Modern-teal?logo=fastapi)
-![ML Models](https://img.shields.io/badge/ML%20Models-10+-purple)
+![ML Models](https://img.shields.io/badge/ML%20Models-13+-purple)
 
 ---
 
 ## ✨ Features
 
-- **🎯 Automatic Model Detection** - Upload CSV, get instant analysis with the best-fit algorithm
-- **💡 Real-World Explanations** - Every model comes with intuitive analogies (e.g., "KNN is like asking your neighbors")
-- **🐳 Docker Ready** - One command deployment, works on any laptop
-- **📊 10+ ML Algorithms** - Comprehensive model library covering all major use cases
+- **🏆 Smart Dispatcher** - Model tournament showing top 3 performers with "85% accuracy" style metrics
+- **🎯 13 Real-World Scenarios** - From crypto trading to fraud detection, each with sample data
+- **💡 Enhanced Explanations** - Every model has industry-specific examples (crypto, healthcare, finance)
+- **🐳 Docker Ready** - One command deployment, works anywhere
+- **📊 13+ ML Algorithms** - Logistic/Linear Regression, Decision Tree, Random Forest, XGBoost, SVM, KNN, Naive Bayes, K-Means, PCA, Isolation Forest
 - **🎨 Premium UI** - Modern dark theme with glassmorphism and smooth animations
 - **⚡ Production Ready** - FastAPI backend, Nginx frontend, fully containerized
+- **🔍 Automatic Scenario Detection** - Platform identifies which ML use case fits your data
 
 ---
 
@@ -70,9 +72,42 @@ python -m http.server 3000
 
 ---
 
+## 🎯 13 Real-World Scenarios
+
+The platform comes with **13 complete ML scenarios**, each with sample data ready to test:
+
+### Classification (6 scenarios)
+1. **💰 Crypto Buy/Sell Signal** - Trading signals with technical indicators (RSI, MACD)
+2. **🏦 Loan Approval Assistant** - Interpretable financial decision-making
+3. **📱 SMS Spam Detector** - Text-based filtering with Naive Bayes
+4. **💵 Fake Banknote Detector** - Precision boundary detection with SVM
+5. **❤️ Heart Disease Predictor** - Medical ensemble classification
+6. **📊 Customer Churn Predictor** - Subscription cancellation prediction
+
+### Regression (4 scenarios)
+7. **📈 Marketing ROI Calculator** - Linear trend analysis for ad spend
+8. **🚗 Used Car Price Estimator** - Non-linear vehicle pricing
+9. **🏠 Airbnb Nightly Rate** - Neighborhood-based pricing with KNN
+10. **✈️ Flight Delay Prediction** - Complex interaction modeling
+
+### Unsupervised (3 scenarios)
+11. **🎨 Color Palette Generator** - K-Means pixel clustering
+12. **📉 Stock Market Visualizer** - PCA dimensionality reduction
+13. **🔍 Credit Card Fraud Detection** - Isolation Forest anomaly detection
+
+**All scenarios include:**
+- ✅ Sample CSV datasets in `samples/` folder
+- ✅ Real-world industry examples
+- ✅ Optimized model parameters
+- ✅ Business insights and explanations
+
+See **[SCENARIOS.md](./SCENARIOS.md)** for detailed documentation.
+
+---
+
 ## 📚 Supported ML Models
 
-Our platform includes **10+ machine learning algorithms**:
+Our platform includes **13+ machine learning algorithms**:
 
 ### Supervised Learning
 
@@ -189,6 +224,56 @@ curl -X POST http://localhost:8000/analyze \
     "real_world_example": "Instead of one banker reviewing your application..."
   }
 }
+```
+
+### Smart Dispatch Endpoint (NEW!)
+
+**POST** `/smart-dispatch`
+
+Run model tournament and get top 3 performers with performance metrics.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8000/smart-dispatch \
+  -F "file=@samples/crypto_signals.csv" \
+  -F "target_col=buy_signal"
+```
+
+**Response:**
+```json
+{
+  "scenario": {
+    "name": "Crypto Buy/Sell Signal",
+    "icon": "💰",
+    "confidence": 92.5,
+    "industry": "Finance/Trading"
+  },
+  "top_models": [
+    {"name": "Logistic Regression", "score": 85.2, "score_type": "Accuracy"},
+    {"name": "Random Forest Classifier", "score": 83.1, "score_type": "Accuracy"},
+    {"name": "XGBoost Classifier", "score": 82.8, "score_type": "Accuracy"}
+  ],
+  "recommended_model": {
+    "name": "Logistic Regression",
+    "explanation": "Best for binary classification with probability estimates..."
+  },
+  "dataset_summary": {
+    "num_rows": 50,
+    "num_cols": 9,
+    "num_numeric": 8,
+    "num_categorical": 1
+  }
+}
+```
+
+### List Scenarios
+
+**GET** `/scenarios`
+
+Get all 13 available real-world ML scenarios.
+
+```bash
+curl http://localhost:8000/scenarios
 ```
 
 ### Interactive API Docs

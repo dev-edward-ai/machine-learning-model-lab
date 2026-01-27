@@ -718,5 +718,115 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     console.log('📡 API Base URL:', API_BASE_URL);
+
+    // Load scenarios showcase
+    loadScenarios();
+
     console.log('✅ All systems ready!');
 });
+
+// ===================================
+// Scenario Showcase Loader (NEW!)
+// ===================================
+
+async function loadScenarios() {
+    const scenariosGrid = document.getElementById('scenariosGrid');
+    if (!scenariosGrid) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/scenarios`);
+        const data = await response.json();
+
+        if (data.scenarios && data.scenarios.length > 0) {
+            renderScenarios(data.scenarios);
+        } else {
+            scenariosGrid.innerHTML = '\u003cp\u003eNo scenarios available\u003c/p\u003e';
+        }
+    } catch (error) {
+        console.error('Failed to load scenarios:', error);
+        scenariosGrid.innerHTML = '\u003cp\u003eFailed to load scenarios. Please refresh the page.\u003c/p\u003e';
+    }
+}
+
+function renderScenarios(scenarios) {
+    const scenariosGrid = document.getElementById('scenariosGrid');
+
+    scenariosGrid.innerHTML = scenarios.map((scenario, index) =\u003e`
+        \u003cdiv class="scenario-card" onclick="loadScenarioSample('${scenario.id}')" data-scenario="${scenario.id}"\u003e
+            \u003cdiv class="scenario-header"\u003e
+                \u003cdiv class="scenario-icon"\u003e${scenario.icon || '🤖'}\u003c/div\u003e
+                \u003cspan class="scenario-badge"\u003e${scenario.task || 'Analysis'}\u003c/span\u003e
+            \u003c/div\u003e
+            \u003cdiv class="scenario-content"\u003e
+                \u003ch3 class="scenario-title"\u003e${scenario.name}\u003c/h3\u003e
+                \u003cp class="scenario-description"\u003e${scenario.description}\u003c/p\u003e
+            \u003c/div\u003e
+            \u003cdiv class="scenario-footer"\u003e
+                \u003cspan class="scenario-industry"\u003e${scenario.industry || 'General'}\u003c/span\u003e
+                \u003cspan class="scenario-action"\u003eTry Sample \u003cspan class="scenario-action-icon"\u003e→\u003c/span\u003e\u003c/span\u003e
+            \u003c/div\u003e
+        \u003c/div\u003e
+    `).join('');
+
+    console.log(`✅ Loaded ${scenarios.length} scenarios`);
+}
+
+function loadScenarioSample(scenarioId) {
+    console.log(`🎯 Loading sample for scenario: ${scenarioId}`);
+
+    // Map scenario ID to sample file
+    const scenarioFileMap = {
+        'crypto_signals': 'crypto_signals.csv',
+        'loan_applications': 'loan_applications.csv',
+        'sms_spam': 'sms_spam.csv',
+        'banknote_authentication': 'banknote_authentication.csv',
+        'heart_disease': 'heart_disease.csv',
+        'customer_churn': 'customer_churn.csv',
+        'marketing_roi': 'marketing_roi.csv',
+        'used_car_prices': 'used_car_prices.csv',
+        'airbnb_pricing': 'airbnb_pricing.csv',
+        'flight_delays': 'flight_delays.csv',
+        'color_palette': 'color_palette.csv',
+        'stock_sectors': 'stock_sectors.csv',
+        'credit_card_transactions': 'credit_card_transactions.csv'
+    };
+
+    const sampleFile = scenarioFileMap[scenarioId];
+    if (!sampleFile) {
+        showNotification('⚠️ Sample data not available for this scenario', 'warning');
+        return;
+    }
+
+    // Fetch and load the sample file
+    fetch(`/samples/${sampleFile}`)
+        .then(response =\u003e {
+            if(!response.ok) {
+        // Fallback: try from backend samples endpoint
+        return fetch(`${API_BASE_URL}/samples/${sampleFile}`);
+    }
+    return response;
+})
+        .then(response =\u003e response.blob())
+    .then(blob =\u003e {
+        // Create a File object from the blob
+        const file = new File([blob], sampleFile, { type: 'text/csv' });
+
+        // Simulate file selection
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        // Trigger file select handler
+        selectedFile = file;
+        displayFileInfo(file);
+
+            // Scroll to upload section
+            document.getElementById('upload').scrollIntoView({ behavior: 'smooth' });
+
+        showNotification(`✅ Loaded ${sampleFile}! Click "Analyze with AI" to start`, 'success');
+        })
+        .catch(error =\u003e {
+            console.error('Failed to load sample:', error);
+            showNotification('❌ Failed to load sample data. Please upload manually.', 'error');
+        });
+}

@@ -39,99 +39,99 @@ def get_model_explanation(
                 "The algorithm looks at the K closest data points and makes a decision based on what's most common among them."
             ),
             "real_world_example": (
-                "**Real-World Scenario:** Imagine you're living in the USA but speak Thai. "
-                "KNN checks your 5 closest neighbors - if 4 of them are Thai and 1 is American, "
-                "it predicts you're Thai! Same applies to product recommendations: if your 5 nearest "
-                "customers (by behavior) all bought product X, you'll likely buy it too."
+                "**Airbnb Nightly Rate Estimator:** How much should I charge for my room? "
+                "KNN finds the 5 nearest apartments physically close to you with similar amenities (WiFi, Pool, Bedrooms). "
+                "If they charge [$145, $152, $148, $155, $150], your optimal rate = $150/night (average of neighbors). "
+                "It's like asking 'What do similar places nearby charge?' Also used for: product recommendations, real estate pricing."
             ),
-            "best_for": "Recommendation systems, pattern recognition, classification when similar items behave similarly"
+            "best_for": "Neighbor-based pricing, recommendation systems, pattern recognition, local decision-making"
         },
         
         # Linear Regression
-        "linear_regression": {
-            "analogy": "📈 **The Straight Line Predictor**",
-            "how_it_works": (
-                "Linear regression draws the best straight line through your data points. "
-                "It assumes there's a linear relationship between inputs and output. "
-                "Think of it as finding the trend line in your data."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Predicting house prices based on square footage. "
-                "If houses generally increase by $100 per square foot, linear regression finds that pattern. "
-                "A 2,000 sq ft house might be $200K, a 3,000 sq ft house $300K - a straight line relationship. "
-                "Also used for sales forecasting, temperature predictions, or any scenario where one thing consistently affects another."
-            ),
-            "best_for": "Continuous predictions with linear relationships, trend analysis, simple forecasting"
-        },
+    "linear_regression": {
+        "analogy": "📈 **The Straight Line Predictor**",
+        "how_it_works": (
+            "Linear regression draws the best straight line through your data points. "
+            "It assumes there's a linear relationship between inputs and output. "
+            "Think of it as finding the trend line in your data."
+        ),
+        "real_world_example": (
+            "**Marketing Ad ROI Calculator:** If we spend $5,000 more on YouTube ads, how many more sales? "
+            "Linear regression finds: Every $1,000 spent = $4,200 in sales (straight-line relationship). "
+            "So $5K ad spend → $21K sales! Marketing teams use this to estimate ROI: 'Spend $10K → Get $42K back'. "
+            "Simple, interpretable, and fast. Also used for: salary prediction, temperature forecasting, stock trend analysis."
+        ),
+        "best_for": "Continuous predictions with linear relationships, ROI estimation, trend analysis, simple forecasting"
+    },
         
         # Logistic Regression
-        "logistic_regression": {
-            "analogy": "🎯 **The Yes/No Decision Maker**",
-            "how_it_works": (
-                "Logistic regression is linear regression's cousin for yes/no decisions. "
-                "Instead of predicting a number, it predicts the probability of something being true or false. "
-                "It draws an S-shaped curve to separate two classes."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Email spam detection. Based on features like 'number of exclamation marks', "
-                "'contains word FREE', and 'sender reputation', it calculates the probability an email is spam. "
-                "If probability > 50%, mark as spam. Also perfect for medical diagnosis (disease: yes/no), "
-                "credit approval (approve/reject), or customer churn (will leave/will stay)."
-            ),
-            "best_for": "Binary classification, probability estimation, risk assessment"
-        },
+    "logistic_regression": {
+        "analogy": "🎯 **The Yes/No Decision Maker**",
+        "how_it_works": (
+            "Logistic regression is linear regression's cousin for yes/no decisions. "
+            "Instead of predicting a number, it predicts the probability of something being true or false. "
+            "It draws an S-shaped curve to separate two classes."
+        ),
+        "real_world_example": (
+            "**Crypto Buy/Sell Signal:** Using technical indicators (RSI, MACD, Moving Averages), "
+            "it calculates the probability of price going UP in the next hour. Example: RSI=68, MA_7>MA_30, MACD positive → "
+            "85% chance of uptrend → BUY signal! Financial analysts use this for quick probability assessments. "
+            "Also used for: Email spam detection, medical diagnosis (disease: yes/no), credit approval (approve/reject)."
+        ),
+        "best_for": "Binary classification, probability estimation, risk assessment, trading signals"
+    },
         
         # Decision Tree
-        "decision_tree": {
-            "analogy": "🌳 **The 20 Questions Game**",
-            "how_it_works": (
-                "A decision tree asks a series of yes/no questions to reach a conclusion. "
-                "Like playing 20 questions, it splits your data based on the most informative features first, "
-                "creating a tree of decisions that leads to a prediction."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Diagnosing why your car won't start. "
-                "First question: 'Does it make any sound?' → No → 'Is the battery dead?' → Yes → Replace battery! "
-                "For business: 'Is customer tenure > 2 years?' → No → 'Did they call support 3+ times?' → Yes → High churn risk! "
-                "The tree makes decisions just like a human troubleshooting guide, easy to understand and explain."
-            ),
-            "best_for": "Interpretable decisions, rule-based classification, handling mixed data types"
-        },
+    "decision_tree": {
+        "analogy": "🌳 **The 20 Questions Game**",
+        "how_it_works": (
+            "A decision tree asks a series of yes/no questions to reach a conclusion. "
+            "Like playing 20 questions, it splits your data based on the most informative features first, "
+            "creating a tree of decisions that leads to a prediction."
+        ),
+        "real_world_example": (
+            "**Loan Approval Assistant:** Banks need to explain rejections. The tree shows: "
+            "'Income < $30K?' → Yes → 'Credit Score < 600?' → Yes → REJECTED. Customer sees exactly WHY they were declined! "
+            "For cars: 'Mileage > 100K?' → Yes → 'Warranty expired?' → Yes → Price drops 40%. "
+            "Decision trees are interpretable - you can visualize the exact rules, making them perfect for regulated industries."
+        ),
+        "best_for": "Interpretable decisions, rule-based classification, regulatory compliance, explaining rejections"
+    },
         
         # Random Forest
-        "random_forest": {
-            "analogy": "🌲🌲🌲 **Wisdom of the Crowd**",
-            "how_it_works": (
-                "Random Forest creates hundreds of decision trees, each trained on slightly different data. "
-                "Each tree 'votes' on the answer, and the majority wins. "
-                "It's like asking 100 experts instead of 1 - more reliable and less prone to overfitting."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Loan approval decision. Instead of one banker reviewing your application, "
-                "imagine 100 bankers each reviewing it independently with slightly different information. "
-                "If 85 approve and 15 reject, you get approved! This prevents one bad tree from making a wrong decision. "
-                "Used in fraud detection, disease diagnosis, or any high-stakes decision where accuracy matters."
-            ),
-            "best_for": "High accuracy, robust predictions, handling complex non-linear relationships"
-        },
+    "random_forest": {
+        "analogy": "🌲🌲🌲 **Wisdom of the Crowd**",
+        "how_it_works": (
+            "Random Forest creates hundreds of decision trees, each trained on slightly different data. "
+            "Each tree 'votes' on the answer, and the majority wins. "
+            "It's like asking 100 experts instead of 1 - more reliable and less prone to overfitting."
+        ),
+        "real_world_example": (
+            "**Disease Risk Predictor:** Does this patient have heart disease? Instead of one doctor's opinion, "
+            "imagine 100 doctors reviewing age, cholesterol, BP, ECG - each with slightly different specialties. "
+            "If 85 say 'HIGH RISK' and 15 say 'LOW RISK', diagnosis = HIGH RISK with 85% confidence! "
+            "Medical fields love Random Forest because it handles messy data well and is more accurate than single trees. "
+            "Also used for: loan approval, fraud detection, flight delays."
+        ),
+        "best_for": "High accuracy, robust predictions, medical diagnosis, handling complex non-linear relationships"
+    },
         
         # Support Vector Machine (SVM)
-        "svm": {
-            "analogy": "✂️ **The Optimal Separator**",
-            "how_it_works": (
-                "SVM finds the best boundary to separate different classes. "
-                "Imagine drawing a line between red and blue marbles - SVM finds the line that maximizes "
-                "the distance to the nearest marbles on both sides, creating the safest separation zone."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Security clearance - separating authorized from unauthorized personnel. "
-                "You want the clearest possible boundary with maximum margin of safety. "
-                "SVM would find the decision boundary (combination of credentials, badges, access history) "
-                "that best separates the two groups with maximum confidence. "
-                "Perfect for image recognition (cat vs dog), text classification, or any scenario needing clear separation."
-            ),
-            "best_for": "High-dimensional data, clear class separation, robust to outliers"
-        },
+    "svm": {
+        "analogy": "✂️ **The Optimal Separator**",
+        "how_it_works": (
+            "SVM finds the best boundary to separate different classes. "
+            "Imagine drawing a line between red and blue marbles - SVM finds the line that maximizes "
+            "the distance to the nearest marbles on both sides, creating the safest separation zone."
+        ),
+        "real_world_example": (
+            "**Fake Banknote Detector:** Using sensor data (variance, skewness, curtosis, entropy) from scanned bills, "
+            "SVM draws the maximum-margin boundary between REAL and FAKE. It's not just 'close to the line' - "
+            "SVM creates a safety zone! Perfect for high-stakes binary decisions where you need confidence. "
+            "Banks use this in ATMs to reject counterfeits instantly. Also great for: image recognition, cancer detection, text classification."
+        ),
+        "best_for": "High-dimensional data, clear class separation, robust to outliers, precision boundary detection"
+    },
         
         # K-Means Clustering
         "kmeans": {
@@ -142,49 +142,48 @@ def get_model_explanation(
                 "based on their similarities, creating K distinct clusters."
             ),
             "real_world_example": (
-                "**Real-World Scenario:** Customer segmentation for marketing. "
-                "Without knowing customer types in advance, K-Means discovers natural groups: "
-                "Group 1 = 'Budget shoppers' (low spending, frequent discount use), "
-                "Group 2 = 'Premium buyers' (high spending, brand loyal), "
-                "Group 3 = 'Occasional purchasers' (medium spending, seasonal). "
-                "Now you can target each group with tailored campaigns! Also used for gene sequencing, image compression."
+                "**Image Color Palette Generator:** Upload a sunset photo with millions of pixels → "
+                "K-Means groups pixels into 5 dominant colors. RGB(255,102,102)='Coral Red', RGB(52,152,219)='Sky Blue', etc. "
+                "Designers use this to extract color schemes! Input: complex image. Output: 5 hex codes for your brand palette. "
+                "Also used for: customer segmentation, document clustering, image compression."
             ),
-            "best_for": "Customer segmentation, pattern discovery, data compression, unsupervised grouping"
+            "best_for": "Color extraction, customer segmentation, pattern discovery, data compression, unsupervised grouping"
         },
         
         # Naive Bayes
-        "naive_bayes": {
-            "analogy": "🎲 **The Probability Detective**",
-            "how_it_works": (
-                "Naive Bayes uses probability to make predictions. It calculates how likely something belongs "
-                "to a class based on its features, assuming features are independent (hence 'naive'). "
-                "It's based on Bayes' theorem - updating beliefs based on new evidence."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Medical diagnosis. If you have symptoms = [fever, cough, fatigue], "
-                "Naive Bayes calculates: P(Flu | symptoms) vs P(Cold | symptoms) vs P(COVID | symptoms). "
-                "It knows 'fever' is 80% common in flu, 40% in cold, 90% in COVID, combines all symptom probabilities, "
-                "and predicts the most likely disease. Fast and effective! Also powers spam filters and sentiment analysis."
-            ),
-            "best_for": "Text classification, spam filtering, fast predictions with limited data"
-        },
+    "naive_bayes": {
+        "analogy": "🎲 **The Probability Detective**",
+        "how_it_works": (
+            "Naive Bayes uses probability to make predictions. It calculates how likely something belongs "
+            "to a class based on its features, assuming features are independent (hence 'naive'). "
+            "It's based on Bayes' theorem - updating beliefs based on new evidence."
+        ),
+        "real_world_example": (
+            "**Spam vs Ham SMS Detector:** Message contains 'FREE', 'WINNER', '!!!', and URL → "
+            "P(Spam | these words) = 95%! This is literally how early email spam filters worked. "
+            "Word 'FREE' appears in 80% of spam aber only 5% of ham. Combines all word probabilities to classify. "
+            "Super fast and works great with text! Also used for: sentiment analysis, medical diagnosis, document classification."
+        ),
+        "best_for": "Text classification, spam filtering, fast predictions with limited data, NLP tasks"
+    },
         
         # XGBoost (Gradient Boosting)
-        "xgboost": {
-            "analogy": "🎯 **The Error-Correcting Champion**",
-            "how_it_works": (
-                "XGBoost builds models sequentially, where each new model focuses on correcting the mistakes "
-                "of previous models. Like a student learning from exam mistakes, each iteration gets smarter "
-                "by targeting what it got wrong before. It's one of the most powerful ML algorithms."
-            ),
-            "real_world_example": (
-                "**Real-World Scenario:** Predicting insurance claims. First model predicts claim amounts but makes errors. "
-                "Second model learns 'where did we overpredict? underpredict?' and corrects those patterns. "
-                "Third model corrects what model 2 missed. After 100+ iterations, you have a super-accurate predictor! "
-                "This is why XGBoost dominates Kaggle competitions and powers fraud detection, click prediction, and ranking systems."
-            ),
-            "best_for": "Winning competitions, complex patterns, maximum accuracy, handling messy data"
-        },
+    "xgboost": {
+        "analogy": "🎯 **The Error-Correcting Champion**",
+        "how_it_works": (
+            "XGBoost builds models sequentially, where each new model focuses on correcting the mistakes "
+            "of previous models. Like a student learning from exam mistakes, each iteration gets smarter "
+            "by targeting what it got wrong before. It's one of the most powerful ML algorithms."
+        ),
+        "real_world_example": (
+            "**Customer Churn Predictor:** Predicting who will cancel Netflix/Spotify subscription. "
+            "First model: 'Low tenure = churn' (70% accuracy). Second model finds 'Wait, users with high support calls ALSO churn!' "
+            "Third model: 'Actually, paperless billing + monthly contract combo is risky!' After 100 iterations → 95% accuracy! "
+            "This is the industry standard for tabular data. Companies use it to identify at-risk customers and send coupons BEFORE they quit. "
+            "Why it dominates: Kaggle competitions, fraud detection, click prediction, recommendation systems."
+        ),
+        "best_for": "Winning competitions, customer churn, maximum accuracy on tabular data, handling complex patterns"
+    },
         
         # PCA (Dimensionality Reduction / Gradient Boosting)
         "pca": {
@@ -195,13 +194,12 @@ def get_model_explanation(
                 "Useful for visualization and preprocessing before other algorithms."
             ),
             "real_world_example": (
-                "**Real-World Scenario:** You have customer data with 100 features (age, income, purchases, clicks, etc.). "
-                "PCA might discover that 3 'super-features' capture 95% of the variation: "
-                "'Purchasing Power' (combination of income, spending), 'Engagement' (clicks, time on site), "
-                "and 'Loyalty' (repeat visits, reviews). Now you can visualize customers in 3D instead of 100D! "
-                "Also used in image compression, genetics, and removing data redundancy."
+                "**Stock Market Sector Visualizer:** 500 stocks with 50+ features (PE ratio, volatility, beta, growth, etc.). "
+                "Impossible to visualize! PCA compresses to 2D: X-axis='Value vs Growth', Y-axis='Risk Level'. "
+                "Now you can plot all 500 stocks on one chart! Tech stocks (NVIDIA, AMD) cluster together, consumer stocks (Coca-Cola) far away. "
+                "Perfect for identifying sector trends and correlations. Also used for: image compression, genetics, noise reduction."
             ),
-            "best_for": "Data visualization, noise reduction, preprocessing, handling high-dimensional data"
+            "best_for": "Stock visualization, data visualization, noise reduction, preprocessing, handling high-dimensional data"
         },
         
         # Gradient Boosting (general)
@@ -220,12 +218,30 @@ def get_model_explanation(
             ),
             "best_for": "High-stakes predictions, complex non-linear patterns, tabular data"
         },
+        
+        # Isolation Forest (Anomaly Detection)
+        "isolation_forest": {
+            "analogy": "🔍 **The Outlier Hunter**",
+            "how_it_works": (
+                "Isolation Forest identifies anomalies by how 'easy' they are to isolate from normal data. "
+                "Outliers are 'few and different' - they get isolated quickly with fewer random splits. "
+                "Think of it as finding the one person wearing a tuxedo at a beach party - they stand out!"
+            ),
+            "real_world_example": (
+                "**Credit Card Fraud Detection:** You usually buy groceries ($50-$100) locally. "
+                "Suddenly: $3,500 electronics purchase from Thailand at 3 AM! Isolation Forest flags this: "
+                "'This transaction looks WEIRD compared to your history.' Banks freeze the card instantly. "
+                "It detects: unusual amounts, strange locations, odd times, suspicious merchant categories. "
+                "Also used for: network intrusion detection, quality control, outlier removal."
+            ),
+            "best_for": "Fraud detection, anomaly detection, outlier removal, network security, quality control"
+        },
     }
     
     # Get base explanation or default
     base_key = None
     for key in ["knn", "linear_regression", "logistic_regression", "decision_tree", 
-                "random_forest", "svm", "kmeans", "naive_bayes", "xgboost", "pca", "gradient_boosting"]:
+                "random_forest", "svm", "kmeans", "naive_bayes", "xgboost", "pca", "gradient_boosting", "isolation_forest"]:
         if key in model_key:
             base_key = key
             break

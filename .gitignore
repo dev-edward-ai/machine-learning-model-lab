@@ -1,44 +1,87 @@
-# Python artifacts
+# Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 *.so
-*.egg-info/
-.eggs/
-*.log
-*.tmp
-*.sqlite3
-.python-version
-.venv/
-.env
-.env.*
-
-# FastAPI / build
-uvicorn.log
-
-# Jupyter / data
-.ipynb_checkpoints/
-*.ipynb
-
-# Frontend artifacts
-node_modules/
-dist/
+.Python
+env/
+venv/
+ENV/
 build/
-.DS_Store
-*.cache
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# OS junk
-Thumbs.db
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
 *.swp
 *.swo
+*~
+.DS_Store
 
-# Datasets + models
-*.csv
-*.tsv
-*.xlsx
-*.joblib
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Node modules (if using any frontend build tools)
+node_modules/
+
+# Model files (large files - optional, remove this line if you want to commit models)
 *.pkl
+*.h5
+*.pth
+*.onnx
 
-# VS Code
-.vscode/
+# User-specific files
+.gemini/
+
+# Test files artifacts
+test_*.py
+quick_test.py
