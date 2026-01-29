@@ -147,6 +147,25 @@ SCENARIOS = {
 }
 
 
+def _scenario_model_matches(result_name: str, scenario_model_type: str) -> bool:
+    """Check if a tournament result name matches the scenario's designated model."""
+    if not scenario_model_type or not result_name:
+        return False
+    a = result_name.lower().strip()
+    b = scenario_model_type.lower().strip()
+    return b in a or a.startswith(b) or (b.startswith("kmeans") and "kmeans" in a)
+
+
+def _find_scenario_model_index(
+    results: List[Tuple[str, float, Any]], scenario_model_type: str
+) -> Optional[int]:
+    """Return index of first result whose name matches the scenario model, else None."""
+    for i, (name, _, _) in enumerate(results):
+        if _scenario_model_matches(name, scenario_model_type):
+            return i
+    return None
+
+
 def detect_scenario(df: pd.DataFrame, target_col: Optional[str] = None) -> Tuple[str, float]:
     """
     Detect which real-world scenario the dataset matches.
@@ -331,25 +350,46 @@ def smart_dispatch(
         # Sort by score and get top 3
         results.sort(key=lambda x: x[1], reverse=True)
         
-        # Store the winning model and preprocessor
+        # Prefer scenario's designated model when we detected a known scenario
+        scenario_model_type = None
+        if scenario_id in SCENARIOS and SCENARIOS[scenario_id].get("task") == task_type:
+            scenario_model_type = SCENARIOS[scenario_id].get("model_type")
+        idx = _find_scenario_model_index(results, scenario_model_type) if scenario_model_type else None
+        if idx is not None and idx > 0:
+            # Move scenario model to front; keep order of rest
+            chosen = results[idx]
+            results = [chosen] + [r for i, r in enumerate(results) if i != idx]
+        
+        # Store the winning model and preprocessor (scenario model when preferred)
         if results:
             winning_model = results[0][2]
             winning_preprocessor = preprocessor
         
         top_models = []
+        use_scenario_model = idx is not None
         for name, score, model in results[:3]:
             # Convert to percentage for classification
             display_score = round(score * 100, 1) if task_type == "classification" else round(score, 3)
-            top_models.append({
+            entry = {
                 "name": name,
                 "score": display_score,
                 "score_type": score_type,
                 "model_type": task_type,
                 "explanation": get_model_explanation(name, task_type)
-            })
+            }
+            if use_scenario_model and name == results[0][0]:
+                entry["scenario_recommended"] = True
+                entry["scenario_name"] = scenario.get("name", "")
+            top_models.append(entry)
     
-    # Recommended model (top performer)
+    # Recommended model (top performer; scenario model when we preferred it)
     recommended_model = top_models[0] if top_models else None
+    if recommended_model and scenario_id in SCENARIOS and task_type in ("clustering", "anomaly"):
+        # Clustering/anomaly: single model; mark as scenario match when scenario fits
+        st = SCENARIOS[scenario_id].get("model_type", "")
+        if _scenario_model_matches(recommended_model["name"], st):
+            recommended_model["scenario_recommended"] = True
+            recommended_model["scenario_name"] = scenario.get("name", "")
     
     # Cache the winning model for demo predictions
     session_id = None

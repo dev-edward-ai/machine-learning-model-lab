@@ -22,7 +22,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, LabelEncoder
 from sklearn.svm import SVC, SVR
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
@@ -292,11 +292,43 @@ def run_supervised_tournament(
     return best_name, best_model, float(best_score)
 
 
+def _ensure_numeric_for_clustering(df: pd.DataFrame) -> pd.DataFrame:
+    """Ensure we have numeric features: use numeric columns, or encode categoricals."""
+    X_num = df.select_dtypes(include=[np.number])
+    if not X_num.empty:
+        # Mix: use numeric and add label-encoded categoricals
+        obj_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
+        if not obj_cols:
+            return X_num
+        out = X_num.copy()
+        for col in obj_cols:
+            le = LabelEncoder()
+            vals = df[col].astype(str).fillna("__NA__")
+            out[col] = le.fit_transform(vals)
+        return out
+    # No numeric columns: encode all object/category columns
+    obj_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
+    if not obj_cols:
+        raise ValueError(
+            "Clustering requires at least one numeric or categorical column. "
+            "Add numeric columns or use a target column for classification/regression."
+        )
+    out = pd.DataFrame(index=df.index)
+    for col in obj_cols:
+        le = LabelEncoder()
+        vals = df[col].astype(str).fillna("__NA__")
+        out[col] = le.fit_transform(vals)
+    return out
+
+
 def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float, np.ndarray]:
     """Run tournament for clustering algorithms."""
-    X = df.select_dtypes(include=[np.number])
+    X = _ensure_numeric_for_clustering(df)
     if X.empty:
-        raise ValueError("Clustering requires at least one numeric column.")
+        raise ValueError(
+            "Clustering could not use any columns. "
+            "Ensure your CSV has numeric columns or categorical (text) columns."
+        )
     
     # Apply PCA for dimensionality reduction if needed
     n_components = min(5, X.shape[1])
@@ -335,9 +367,12 @@ def run_clustering_tournament(df: pd.DataFrame) -> Tuple[str, Any, float, np.nda
 
 def run_anomaly_tournament(df: pd.DataFrame) -> Tuple[str, Any, float, np.ndarray]:
     """Run anomaly detection using Isolation Forest."""
-    X = df.select_dtypes(include=[np.number])
+    X = _ensure_numeric_for_clustering(df)
     if X.empty:
-        raise ValueError("Anomaly detection requires at least one numeric column.")
+        raise ValueError(
+            "Anomaly detection could not use any columns. "
+            "Ensure your CSV has numeric or categorical columns."
+        )
     
     pipe = Pipeline(
         [

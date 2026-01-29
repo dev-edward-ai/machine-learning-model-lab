@@ -5,6 +5,23 @@ import pandas as pd
 import io
 
 from .routers.models import router as models_router
+
+
+def _read_csv_robust(content: bytes):
+    """Read CSV with lenient parsing: Python engine, skip bad lines, try encodings."""
+    for encoding in ("utf-8", "latin-1", "cp1252"):
+        try:
+            buffer = io.BytesIO(content)
+            return pd.read_csv(
+                buffer,
+                engine="python",
+                on_bad_lines="skip",
+                encoding=encoding,
+            )
+        except Exception:
+            continue
+    buffer = io.BytesIO(content)
+    return pd.read_csv(buffer, engine="python", on_bad_lines="skip")
 from .routers.predict import router as predict_router
 from .routers.demo_predict import router as demo_router
 from .services.auto_model import recommend_and_run_best_model
@@ -69,9 +86,9 @@ async def analyze_dataset(
     Runs tournament across all 10+ available models and returns best fit with real-world explanations.
     """
     try:
-        # Read CSV
+        # Read CSV (robust: skip bad lines, Python engine)
         content = await file.read()
-        df = pd.read_csv(io.BytesIO(content))
+        df = _read_csv_robust(content)
         await file.close()
         
         # Run AutoML
@@ -121,9 +138,9 @@ async def smart_dispatcher_analysis(
     Shows performance metrics (80% accuracy style) and matches to real-world scenarios.
     """
     try:
-        # Read CSV
+        # Read CSV (robust: skip bad lines, Python engine)
         content = await file.read()
-        df = pd.read_csv(io.BytesIO(content))
+        df = _read_csv_robust(content)
         await file.close()
         
         # Run smart dispatch

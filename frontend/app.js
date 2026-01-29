@@ -1,4 +1,4 @@
-﻿// ===================================
+// ===================================
 
 // AutoML Intelligence Platform
 
@@ -330,25 +330,25 @@ document.querySelectorAll('[href^="#"]').forEach(anchor => {
 
 // ===================================
 
-// File Upload Hndling
+// File Upload Handling
 
 // ===================================
 
 
 
-// const fileInput = document.getElementById('fileInput');
+const fileInput = document.getElementById('fileInput');
 
-// const dropZone = document.getElementById('dropZone');
+const dropZone = document.getElementById('dropZone');
 
-// const uploadZoneContent = document.getElementById('uploadZoneContent');
+const uploadZoneContent = document.getElementById('uploadZoneContent');
 
-// const fileInfo = document.getElementById('fileInfo');
+const fileInfo = document.getElementById('fileInfo');
 
 const fileName = document.getElementById('fileName');
 
 const fileSize = document.getElementById('fileSize');
 
-// const fileRemove = document.getElementById('fileRemove');
+const fileRemove = document.getElementById('fileRemove');
 
 const uploadProgress = document.getElementById('uploadProgress');
 
@@ -366,19 +366,23 @@ let selectedFile = null;
 
 dropZone.addEventListener('click', (e) => {
 
-    if (e.target !== fileRemove && !fileRemove.contains(e.target)) {
+    // Don't trigger file input if clicking on remove button
 
-        fileInputanchor.click();
+    if (fileRemove && (e.target === fileRemove || fileRemove.contains(e.target))) {
+
+        return;
 
     }
+
+    fileInput.click();
 
 });
 
 
 
-// File seleaction
+// File selection
 
-fileInput.addEventListener('chnge', handleFileSelect);
+fileInput.addEventListener('change', handleFileSelect);
 
 
 
@@ -472,7 +476,7 @@ dropZone.addEventListener('dragover', (e) => {
 
 
 
-dropZone.addEventListener('dragleve', () => {
+dropZone.addEventListener('dragleave', () => {
 
     dropZone.classList.remove('drag-over');
 
@@ -492,13 +496,18 @@ dropZone.addEventListener('drop', (e) => {
 
     if (files.length > 0 && files[0].name.endsWith('.csv')) {
 
-        fileInput.files = files;
+        // Create a DataTransfer object to properly set files
+        const dataTransfer = new DataTransfer();
 
-        handleFileSelect({ target: { files } });
+        dataTransfer.items.add(files[0]);
+
+        fileInput.files = dataTransfer.files;
+
+        handleFileSelect({ target: { files: dataTransfer.files } });
 
     } else {
 
-        showNotification('⚠️ Please upload  CSV file', 'warning');
+        showNotification('⚠️ Please upload a CSV file', 'warning');
 
     }
 
@@ -518,7 +527,7 @@ const uploadForm = document.getElementById('uploadForm');
 
 const analyzeBtn = document.getElementById('analyzeBtn');
 
-const statusIndictor = document.getElementById('statusIndictor');
+const statusIndicator = document.getElementById('statusIndicator');
 
 const statusText = document.getElementById('statusText');
 
@@ -548,11 +557,11 @@ uploadForm.addEventListener('submit', async (e) => {
 
     // Show loading state
 
-    analyzeBtn.disbled = true;
+    analyzeBtn.disabled = true;
 
     analyzeBtn.querySelector('.btn-text').textContent = 'Analyzing...';
 
-    statusIndictor.classList.remove('hidden');
+    if (statusIndicator) statusIndicator.classList.remove('hidden');
 
     statusText.textContent = 'Processing your dataset...';
 
@@ -602,9 +611,9 @@ uploadForm.addEventListener('submit', async (e) => {
 
 
 
-        // Mke API request
+        // Make API request
 
-        const response = await fetch(`${API_BASE_URL} / smart - dispatch`, {
+        const response = await fetch(`${API_BASE_URL}/smart-dispatch`, {
 
             method: 'POST',
 
@@ -620,9 +629,23 @@ uploadForm.addEventListener('submit', async (e) => {
 
         if (!response.ok) {
 
-            const errorDt = await response.json();
+            let errMsg = 'Analysis failed';
 
-            throw new Error(errorDt.detail?.error || errorDt.detail || 'Analysis failed');
+            try {
+
+                const errorData = await response.json();
+
+                const detail = errorData.detail;
+
+                errMsg = (typeof detail === 'string' ? detail : detail?.error || detail?.msg) || errMsg;
+
+            } catch (_) {
+
+                errMsg = response.statusText || errMsg;
+
+            }
+
+            throw new Error(errMsg);
 
         }
 
@@ -640,15 +663,17 @@ uploadForm.addEventListener('submit', async (e) => {
 
 
 
-        // Display results
+        // Display results (normalize smart-dispatch response for displayResults)
+
+        const normalized = normalizeSmartDispatchResponse(data);
 
         setTimeout(() => {
 
-            displayResults(data);
+            displayResults(normalized);
 
             uploadProgress.classList.add('hidden');
 
-            statusIndictor.classList.add('hidden');
+            if (statusIndicator) statusIndicator.classList.add('hidden');
 
 
 
@@ -684,11 +709,13 @@ uploadForm.addEventListener('submit', async (e) => {
 
         uploadProgress.classList.add('hidden');
 
-        statusIndictor.classList.add('hidden');
+        if (statusIndicator) statusIndicator.classList.add('hidden');
 
 
 
         showNotification(`❌ ${error.message}`, 'error');
+
+        if (statusIndicator) statusIndicator.classList.add('hidden');
 
 
 
@@ -728,7 +755,7 @@ text-align: center;
 
     } finally {
 
-        analyzeBtn.disbled = false;
+        analyzeBtn.disabled = false;
 
         analyzeBtn.querySelector('.btn-text').textContent = 'Analyze with AI';
 
@@ -746,7 +773,36 @@ text-align: center;
 
 // ===================================
 
-
+/** Normalize smart-dispatch API response to shape expected by displayResults */
+function normalizeSmartDispatchResponse(data) {
+    if (data.recommended_model_name !== undefined && data.metric_value !== undefined) {
+        return data; // already /analyze shape
+    }
+    const rec = data.recommended_model || {};
+    const scenario = data.scenario || {};
+    const taskType = data.task_type || 'analysis';
+    const topModels = data.top_models || [];
+    const firstScore = rec.score ?? topModels[0]?.score;
+    const isPercent = typeof firstScore === 'number' && firstScore > 1 && firstScore <= 100;
+    return {
+        recommended_model: rec.name,
+        recommended_model_name: rec.name,
+        task_type: taskType,
+        metric_value: isPercent ? firstScore / 100 : firstScore,
+        score: isPercent ? firstScore / 100 : firstScore,
+        resoning: rec.explanation || (topModels[0] && topModels[0].explanation),
+        business_insights: scenario.name ? { headline: `Detected scenario: ${scenario.icon || ''} ${scenario.name} (${scenario.industry || ''}). Confidence: ${data.overall_confidence != null ? data.overall_confidence + '%' : 'N/A'}.`, recommended_action: rec.explanation } : undefined,
+        model_explanation: typeof rec.explanation === 'object' ? rec.explanation : (rec.explanation ? { how_it_works: rec.explanation } : (topModels[0] && topModels[0].explanation ? { how_it_works: topModels[0].explanation } : undefined)),
+        preview_data: [],
+        scenario: data.scenario,
+        top_models: data.top_models,
+        dataset_summary: data.dataset_summary,
+        session_id: data.session_id,
+        feature_info: data.feature_info,
+        scenario_recommended: rec.scenario_recommended || false,
+        scenario_name: rec.scenario_name || (scenario && scenario.name) || ''
+    };
+}
 
 function displayResults(data) {
 
@@ -768,15 +824,21 @@ function displayResults(data) {
 
         model_explanation,
 
-        preview_data
+        preview_data,
+
+        scenario_recommended = false,
+
+        scenario_name = ''
 
     } = data;
 
 
 
-    const modelName = recommended_model || recommended_model_name;
+    const modelName = (typeof recommended_model === 'string' ? recommended_model : recommended_model?.name) || recommended_model_name;
 
-    const finlScore = metric_value || score;
+    const rawScore = metric_value ?? score;
+
+    const finlScore = typeof rawScore === 'number' && rawScore <= 1 ? rawScore : (typeof rawScore === 'number' ? rawScore / 100 : undefined);
 
 
 
@@ -839,6 +901,28 @@ animation: slideIn 0.5s ease - out;
                     margin: 0;
 
                 ">${modelName}</h2>
+
+                ${scenario_recommended && scenario_name ? `
+
+                <span style="
+
+                    padding: 0.5rem 1rem;
+
+                    background: linear-gradient(135deg, rgb(34, 197, 94, 0.3), rgb(16, 185, 129, 0.2));
+
+                    color: rgb(134, 239, 172);
+
+                    border-radius: 20px;
+
+                    font-size: 0.85rem;
+
+                    font-weight: 600;
+
+                    border: 1px solid rgb(34, 197, 94, 0.5);
+
+                ">✓ Recommended for ${scenario_name}</span>
+
+                ` : ''}
 
             </div>
 
@@ -1068,7 +1152,7 @@ gap: 0.75rem;
 
                 
 
-                ${model_explanation.rel_world_exmaple ? `
+                ${model_explanation.real_world_example ? `
 
                     <div style="
 
@@ -1084,7 +1168,7 @@ gap: 0.75rem;
 
                     ">
 
-                        ${model_explanation.rel_world_exmaple}
+                        ${model_explanation.real_world_example}
 
                     </div>
 

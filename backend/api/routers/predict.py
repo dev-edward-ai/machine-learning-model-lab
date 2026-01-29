@@ -107,18 +107,32 @@ async def analyze_dataset(
 async def _read_csv(upload_file: UploadFile) -> pd.DataFrame:
     try:
         content = await upload_file.read()
-        if not content:
-            raise ValueError("File is empty")
-        buffer = io.BytesIO(content)
-        dataframe = pd.read_csv(buffer)
-    except Exception as exc:  # pragma: no cover - defensive
+    finally:
+        await upload_file.close()
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File is empty",
+        )
+    for encoding in ("utf-8", "latin-1", "cp1252"):
+        try:
+            buffer = io.BytesIO(content)
+            return pd.read_csv(
+                buffer,
+                engine="python",
+                on_bad_lines="skip",
+                encoding=encoding,
+            )
+        except Exception:
+            continue
+    buffer = io.BytesIO(content)
+    try:
+        return pd.read_csv(buffer, engine="python", on_bad_lines="skip")
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to read CSV: {exc}",
         ) from exc
-    finally:
-        await upload_file.close()
-    return dataframe
 
 
 def _normalize_objective(objective: Optional[str]) -> Optional[str]:
