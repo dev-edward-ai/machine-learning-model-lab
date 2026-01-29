@@ -22,6 +22,7 @@ from .auto_model import (
     run_anomaly_tournament
 )
 from .model_explanations import get_model_explanation
+from .model_cache import get_model_cache
 
 
 # Real-world scenario definitions
@@ -214,8 +215,14 @@ def smart_dispatch(
     }
     
     # Run model tournament based on task type
+    winning_model = None
+    winning_preprocessor = None
+    feature_names = []
+    
     if task_type == "clustering":
         best_name, best_model, best_score, _ = run_clustering_tournament(df)
+        winning_model = best_model
+        feature_names = df.columns.tolist()
         top_models = [{
             "name": best_name,
             "score": round(float(best_score), 3),
@@ -226,6 +233,8 @@ def smart_dispatch(
         
     elif task_type == "anomaly":
         best_name, best_model, best_score, _ = run_anomaly_tournament(df)
+        winning_model = best_model
+        feature_names = df.columns.tolist()
         top_models = [{
             "name": best_name,
             "score": round(float(best_score), 3),
@@ -255,6 +264,7 @@ def smart_dispatch(
         
         X = df.drop(columns=[target_col])
         y = df[target_col]
+        feature_names = X.columns.tolist()
         
         # Build preprocessor
         num_cols = X.select_dtypes(include=[np.number]).columns.tolist()
@@ -296,7 +306,7 @@ def smart_dispatch(
                 "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
                 "Decision Tree Classifier": DecisionTreeClassifier(random_state=42, max_depth=10),
                 "KNN Classifier": KNeighborsClassifier(n_neighbors=5),
-                "SVM Classifier": SVC(kernel='rbf', random_state=42),
+                "SVM Classifier": SVC(kernel='rbf', random_state=42, probability=True),
                 "Random Forest Classifier": RandomForestClassifier(n_estimators=100, random_state=42, max_depth=15),
                 "Naive Bayes": GaussianNB()
             }
@@ -320,6 +330,12 @@ def smart_dispatch(
         
         # Sort by score and get top 3
         results.sort(key=lambda x: x[1], reverse=True)
+        
+        # Store the winning model and preprocessor
+        if results:
+            winning_model = results[0][2]
+            winning_preprocessor = preprocessor
+        
         top_models = []
         for name, score, model in results[:3]:
             # Convert to percentage for classification
@@ -335,6 +351,34 @@ def smart_dispatch(
     # Recommended model (top performer)
     recommended_model = top_models[0] if top_models else None
     
+    # Cache the winning model for demo predictions
+    session_id = None
+    if winning_model is not None:
+        cache = get_model_cache()
+        
+        # Prepare feature information for the frontend
+        feature_info = {
+            "feature_names": feature_names,
+            "num_features": len(feature_names)
+        }
+        
+        # Store model in cache
+        session_id = cache.store_model(
+            model=winning_model,
+            preprocessor=winning_preprocessor,
+            scenario_id=scenario_id,
+            scenario_data={
+                "id": scenario_id,
+                "name": scenario.get("name", "Unknown"),
+                "description": scenario.get("description", ""),
+                "icon": scenario.get("icon", "🤖"),
+                "industry": scenario.get("industry", "General"),
+            },
+            feature_info=feature_info,
+            task_type=task_type,
+            model_name=recommended_model["name"] if recommended_model else "Unknown"
+        )
+    
     return {
         "scenario": {
             "id": scenario_id,
@@ -348,7 +392,12 @@ def smart_dispatch(
         "recommended_model": recommended_model,
         "dataset_summary": dataset_summary,
         "task_type": task_type,
-        "overall_confidence": round((scenario_confidence + (top_models[0]["score"] / 100 if task_type == "classification" else top_models[0]["score"])) / 2 * 100, 1) if top_models else 50.0
+        "overall_confidence": round((scenario_confidence + (top_models[0]["score"] / 100 if task_type == "classification" else top_models[0]["score"])) / 2 * 100, 1) if top_models else 50.0,
+        "session_id": session_id,  # NEW: For demo page predictions
+        "feature_info": {  # NEW: For demo page input forms
+            "feature_names": feature_names,
+            "num_features": len(feature_names)
+        }
     }
 
 

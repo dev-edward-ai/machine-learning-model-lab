@@ -265,6 +265,70 @@
         </div>
     </section>
 
+    <!-- Post-Analysis Success Modal (NEW!) -->
+    <div class="demo-modal-overlay hidden" id="demoModalOverlay">
+        <div class="demo-modal" id="demoModal">
+            <div class="demo-modal-success">
+                <div class="success-checkmark">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                        <div class="icon-circle"></div>
+                        <div class="icon-fix"></div>
+                    </div>
+                </div>
+                <h2 class="demo-modal-title">🎉 Analysis Complete!</h2>
+            </div>
+
+            <div class="demo-modal-content">
+                <div class="scenario-info">
+                    <div class="scenario-icon-large" id="modalScenarioIcon">🤖</div>
+                    <h3 class="modal-scenario-name" id="modalScenarioName">Scenario Detected</h3>
+                    <p class="modal-scenario-description" id="modalScenarioDescription">Description here</p>
+                </div>
+
+                <div class="model-performance-summary">
+                    <div class="performance-badge">
+                        <span class="badge-label">Top Model</span>
+                        <span class="badge-value" id="modalModelName">Random Forest</span>
+                    </div>
+                    <div class="performance-badge">
+                        <span class="badge-label">Accuracy</span>
+                        <span class="badge-value gradient-text" id="modalModelScore">87.3%</span>
+                    </div>
+                    <div class="performance-badge">
+                        <span class="badge-label">Confidence</span>
+                        <span class="badge-value" id="modalConfidence">92%</span>
+                    </div>
+                </div>
+
+                <div class="demo-prompt">
+                    <p class="demo-prompt-text">
+                        Would you like to see this model in action with a <strong>live interactive demo</strong>?
+                    </p>
+                </div>
+
+                <div class="demo-modal-actions">
+                    <button class="btn-demo-primary" id="btnContinueToDemo">
+                        <span>🚀 Continue to Live Demo</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <button class="btn-demo-secondary" id="btnDownloadResults">
+                        <span>💾 Download Results</span>
+                    </button>
+                    <button class="btn-demo-close" id="btnCloseDemoModal">
+                        <span>← Back to Results</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Page Container (NEW!) -->
+    <div class="demo-page-container hidden" id="demoPageContainer">
+        <!-- Demo content will be dynamically inserted here -->
+    </div>
+
     <!-- Models Showcase -->
     <section id="models" class="models-section">
         <div class="section-header">

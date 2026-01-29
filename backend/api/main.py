@@ -6,6 +6,7 @@ import io
 
 from .routers.models import router as models_router
 from .routers.predict import router as predict_router
+from .routers.demo_predict import router as demo_router
 from .services.auto_model import recommend_and_run_best_model
 from .services.smart_dispatcher import smart_dispatch, get_all_scenarios
 
@@ -25,6 +26,10 @@ tags_metadata = [
     {
         "name": "smart_dispatcher",
         "description": "Smart Dispatcher - Model tournament and scenario detection.",
+    },
+    {
+        "name": "demo",
+        "description": "Demo page predictions using cached models from analysis.",
     },
 ]
 
@@ -49,6 +54,7 @@ app.add_middleware(
 
 app.include_router(models_router)
 app.include_router(predict_router)
+app.include_router(demo_router)
 
 
 @app.post("/analyze", tags=["automl"])
