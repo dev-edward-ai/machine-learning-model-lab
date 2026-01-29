@@ -1526,35 +1526,35 @@ function renderScenarios(scenarios) {
 
 
 
-    scenariosGrid.innerHTML = scenarios.map((scenario, index) =\u003e`
+    scenariosGrid.innerHTML = scenarios.map((scenario, index) => `
 
-        \u003cdiv class="scenario-card" onclick="loadScenarioSample('${scenario.id}')" data-scenario="${scenario.id}"\u003e
+        <div class="scenario-card" onclick="loadScenarioSample('${scenario.id}')" data-scenario="${scenario.id}">
 
-            \u003cdiv class="scenario-header"\u003e
+            <div class="scenario-header">
 
-                \u003cdiv class="scenario-icon"\u003e${scenario.icon || '🤖'}\u003c/div\u003e
+                <div class="scenario-icon">${scenario.icon || '🤖'}</div>
 
-                \u003cspan class="scenario-badge"\u003e${scenario.task || 'Analysis'}\u003c/span\u003e
+                <span class="scenario-badge">${scenario.task || 'Analysis'}</span>
 
-            \u003c/div\u003e
+            </div>
 
-            \u003cdiv class="scenario-content"\u003e
+            <div class="scenario-content">
 
-                \u003ch3 class="scenario-title"\u003e${scenario.name}\u003c/h3\u003e
+                <h3 class="scenario-title">${scenario.name}</h3>
 
-                \u003cp class="scenario-description"\u003e${scenario.description}\u003c/p\u003e
+                <p class="scenario-description">${scenario.description}</p>
 
-            \u003c/div\u003e
+            </div>
 
-            \u003cdiv class="scenario-footer"\u003e
+            <div class="scenario-footer">
 
-                \u003cspan class="scenario-industry"\u003e${scenario.industry || 'General'}\u003c/span\u003e
+                <span class="scenario-industry">${scenario.industry || 'General'}</span>
 
-                \u003cspan class="scenario-action"\u003eTry Sample \u003cspan class="scenario-action-icon"\u003e→\u003c/span\u003e\u003c/span\u003e
+                <span class="scenario-action">Try Sample <span class="scenario-action-icon">→</span></span>
 
-            \u003c/div\u003e
+            </div>
 
-        \u003c/div\u003e
+        </div>
 
     `).join('');
 
@@ -1622,59 +1622,59 @@ function loadScenarioSample(scenarioId) {
 
     fetch(`/samples/${sampleFile}`)
 
-        .then(response =\u003e {
+        .then(response => {
 
-            if(!response.ok) {
+            if (!response.ok) {
 
-        // Fallback: try from backend samples endpoint
+                // Fallback: try from backend samples endpoint
 
-        return fetch(`${API_BASE_URL}/samples/${sampleFile}`);
+                return fetch(`${API_BASE_URL}/samples/${sampleFile}`);
 
-    }
+            }
 
-    return response;
+            return response;
 
-})
+        })
 
-        .then(response =\u003e response.blob())
+        .then(response => response.blob())
 
-    .then(blob =\u003e {
+        .then(blob => {
 
-        // Crete  File object from the blob
+            // Create File object from the blob
 
-        const file = new File([blob], sampleFile, { type: 'text/csv' });
-
-
-
-        // Simulate file seleaction
-
-        const dataTransfer = new DataTransfer();
-
-        dataTransfer.items.add(file);
-
-        fileInput.files = dataTransfer.files;
+            const file = new File([blob], sampleFile, { type: 'text/csv' });
 
 
 
-        // Trigger file select handler
+            // Simulate file selection
 
-        selectedFile = file;
+            const dataTransfer = new DataTransfer();
 
-        displayFileInfo(file);
+            dataTransfer.items.add(file);
+
+            fileInput.files = dataTransfer.files;
 
 
 
-            // Scroll to upload seaction
+            // Trigger file select handler
+
+            selectedFile = file;
+
+            displayFileInfo(file);
+
+
+
+            // Scroll to upload section
 
             document.getElementById('upload').scrollIntoView({ behavior: 'smooth' });
 
 
 
-        showNotification(`✅ Loaded ${sampleFile}! Click "Analyze with AI" to start`, 'success');
+            showNotification(`✅ Loaded ${sampleFile}! Click "Analyze with AI" to start`, 'success');
 
         })
 
-        .catch(error =\u003e {
+        .catch(error => {
 
             console.error('Failed to load sample:', error);
 
@@ -1852,7 +1852,7 @@ function showDemoModal(analysisDt) {
 
 
 
-            scoreDisplay = `${ recommended_model.score } % `;
+            scoreDisplay = `${recommended_model.score} % `;
 
 
 
@@ -1876,7 +1876,7 @@ function showDemoModal(analysisDt) {
 
 
 
-    document.getElementById('modalConfidence').textContent = `${ scenario.confidence } % `;
+    document.getElementById('modalConfidence').textContent = `${scenario.confidence} % `;
 
 
 
@@ -2168,7 +2168,7 @@ function downloadResults() {
 
 
 
-    anchor.download = `automl - results - ${ Date.now() }.json`;
+    anchor.download = `automl - results - ${Date.now()}.json`;
 
 
 
@@ -2220,7 +2220,7 @@ async function makeLivePrediction(inputFetures) {
 
 
 
-        const response = await fetch(`${ API_BASE_URL } / demo / predict / ${ demoStte.sessionId }`, {
+        const response = await fetch(`${API_BASE_URL} / demo / predict / ${demoStte.sessionId}`, {
 
 
 
@@ -2581,8 +2581,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         }
-
-
 
     });
 
@@ -3718,13 +3716,7 @@ async function handleCryptoPrediction(event) {
 
                 </div>
 
-
-
-
-
-
-
-`;
+</div > `;
 
 
 
@@ -3881,34 +3873,13 @@ async function handleLoanPrediction(event) {
 
 
     < div style = "
-
-
-
 padding: 2rem;
-
-
-
-background: rgb(${ isApproved? '16, 185, 129': '239, 68, 68' }, 0.1);
-
-
-
-border: 2px solid ${ statusColor };
-
-
-
+background: rgb(${isApproved ? '16, 185, 129' : '239, 68, 68'}, 0.1);
+border: 2px solid ${statusColor};
 border - radius: 16px;
-
-
-
 text - align: center;
-
-
-
 ">
-
-
-
-    < div style = "font-size: 3.5rem; margin-bottom: 1rem;" > ${ isApproved ? '✅' : '❌' }</div >
+    < div style = "font-size: 3.5rem; margin-bottom: 1rem;" > ${isApproved ? '✅' : '❌'}</div >
 
 
 
@@ -4041,11 +4012,11 @@ async function handleSpamPrediction(event) {
             <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
             <p style="color: var(--text-muted);">Analyzing message...</p>
         </div>
+    </div >
 
 
 
-
-`;
+    `;
 
 
 
@@ -4090,34 +4061,13 @@ async function handleSpamPrediction(event) {
 
 
     < div style = "
-
-
-
 padding: 2rem;
-
-
-
-background: rgb(${ isSpam? '239, 68, 68': '16, 185, 129' }, 0.1);
-
-
-
-border: 2px solid ${ statusColor };
-
-
-
+background: rgb(${isSpam ? '239, 68, 68' : '16, 185, 129'}, 0.1);
+border: 2px solid ${statusColor};
 border - radius: 16px;
-
-
-
 text - align: center;
-
-
-
 ">
-
-
-
-    < div style = "font-size: 3.5rem; margin-bottom: 1rem;" > ${ isSpam ? '❌' : '✅' }</div >
+    < div style = "font-size: 3.5rem; margin-bottom: 1rem;" > ${isSpam ? '❌' : '✅'}</div >
 
 
 
