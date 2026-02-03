@@ -1,293 +1,161 @@
-# 🤖 AutoML Intelligence Platform
+# 🧠 InsightAI - Business Intelligence Platform
 
-**Professional AutoML platform with Smart Dispatcher, 13 real-world scenarios, and production deployment.**
+<div align="center">
 
-Transform your CSV data into intelligent insights with zero configuration. Our platform automatically detects the best machine learning model, runs a model tournament showing top 3 performers with accuracy scores, and explains everything using real-world examples.
+![InsightAI Banner](https://img.shields.io/badge/InsightAI-ML%20Platform-8b5cf6?style=for-the-badge&logo=python&logoColor=white)
 
-![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)
-![Python](https://img.shields.io/badge/Python-3.11-green?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Modern-teal?logo=fastapi)
-![ML Models](https://img.shields.io/badge/ML%20Models-13+-purple)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-machine--learning--model--lab.onrender.com-10b981?style=for-the-badge)](https://machine-learning-model-lab.onrender.com)
+[![Python](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-f7931e?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+
+**An interactive machine learning platform demonstrating real-world business scenarios with specialized ML models.**
+
+[Live Demo](https://machine-learning-model-lab.onrender.com) • [Documentation](#-documentation) • [Getting Started](#-quick-start)
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [Demo Scenarios](#-demo-scenarios)
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## 🎯 Overview
+
+**InsightAI** is a full-stack machine learning web application that demonstrates how different ML algorithms can be applied to solve real-world business problems. The platform features four interactive scenarios, each powered by a specialized machine learning model.
+
+Users can interact with pre-loaded sample data, adjust input parameters, and receive instant AI-powered predictions with confidence scores.
 
 ---
 
 ## ✨ Features
 
-- **🏆 Smart Dispatcher** - Model tournament showing top 3 performers with "85% accuracy" style metrics
-- **🎯 13 Real-World Scenarios** - From crypto trading to fraud detection, each with sample data
-- **💡 Enhanced Explanations** - Every model has industry-specific examples (crypto, healthcare, finance)
-- **🐳 Docker Ready** - One command deployment, works anywhere
-- **📊 13+ ML Algorithms** - Logistic/Linear Regression, Decision Tree, Random Forest, XGBoost, SVM, KNN, Naive Bayes, K-Means, PCA, Isolation Forest
-- **🎨 Premium UI** - Modern dark theme with glassmorphism and smooth animations
-- **⚡ Production Ready** - FastAPI backend, Nginx frontend, fully containerized
-- **🔍 Automatic Scenario Detection** - Platform identifies which ML use case fits your data
+- 🎨 **Modern Dark UI** - Professional glassmorphism design with smooth animations
+- 🤖 **4 ML Models** - Each scenario uses a different, purpose-built algorithm
+- 📊 **Auto-loaded Data** - Sample datasets load automatically for instant demos
+- ⚡ **Real-time Predictions** - Instant results as you adjust parameters
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile
+- 🔗 **Educational Links** - Each model links to detailed explanations
+- 🐳 **Docker Ready** - Containerized for easy deployment
+- ☁️ **Cloud Deployed** - Live on Render's free tier
+
+---
+
+## 🎪 Demo Scenarios
+
+| Scenario | Model | Use Case | Type |
+|----------|-------|----------|------|
+| 🚀 **Crypto Trading** | Logistic Regression | Buy/Sell signal prediction using technical indicators | Classification |
+| 🏥 **Medical Diagnosis** | K-Nearest Neighbors | Health risk assessment based on patient vitals | Classification |
+| 🚗 **Vehicle Pricing** | Decision Tree Regressor | Market valuation based on car specifications | Regression |
+| 💰 **Sales Forecasting** | Random Forest Regressor | ROI prediction for marketing campaigns | Regression |
+
+### Model Deep Dives
+
+Each scenario links to detailed blog posts explaining the underlying algorithms:
+
+- [Logic Behind Logistic Regression](https://novaz-edd.hashnode.dev/logic-behind-logistic-regression)
+- [Logic Behind KNN](https://novaz-edd.hashnode.dev/logic-behind-knn)
+- [Decision Tree Regressor](https://novaz-edd.hashnode.dev/decision-tree-regressor)
+- [Random Forest Regressor](https://novaz-edd.hashnode.dev/random-forest-regressor)
+
+---
+
+## 🛠 Tech Stack
+
+### Backend
+- **FastAPI** - High-performance Python web framework
+- **Uvicorn** - ASGI server for production
+- **Pandas** - Data manipulation and analysis
+- **NumPy** - Numerical computing
+- **scikit-learn** - Machine learning algorithms
+
+### Frontend
+- **HTML5 / CSS3** - Modern semantic markup
+- **Vanilla JavaScript** - No framework dependencies
+- **Font Awesome** - Icon library
+- **Google Fonts (Inter)** - Typography
+
+### DevOps
+- **Docker** - Containerization
+- **Render** - Cloud deployment (Free tier)
+- **GitHub** - Version control
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1: Automated Setup (Recommended)
+### Prerequisites
 
-**Windows (PowerShell):**
-```powershell
-.\setup.ps1
-```
+- Python 3.11+
+- pip (Python package manager)
+- Git
 
-**Linux/Mac:**
-```bash
-chmod +x setup.sh
-./setup.sh
-```
+### Local Development
 
-The script will:
-- ✅ Check Docker installation
-- ✅ Build containers
-- ✅ Start all services
-- ✅ Open your browser automatically
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Novaz-Edd/machine-learning-model-lab.git
+   cd machine-learning-model-lab
+   ```
 
-### Option 2: Manual Setup
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   
+   # Windows
+   venv\Scripts\activate
+   
+   # macOS/Linux
+   source venv/bin/activate
+   ```
 
-```bash
-# Build and start containers
-docker-compose up --build
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
+4. **Start the backend server**
+   ```bash
+   cd backend
+   uvicorn api.main:app --reload --port 8000
+   ```
 
-### Option 3: Development Mode
+5. **Serve the frontend** (in a new terminal)
+   ```bash
+   # From project root
+   python -m http.server 3000
+   ```
 
-```bash
-# Backend
-cd backend
-pip install -r ../requirements.txt
-uvicorn api.main:app --reload --port 8000
+6. **Open in browser**
+   ```
+   http://localhost:3000/frontend/index.html
+   ```
 
-# Frontend (in another terminal)
-cd frontend
-python -m http.server 3000
-```
-
----
-
-## 🎯 13 Real-World Scenarios
-
-The platform comes with **13 complete ML scenarios**, each with sample data ready to test:
-
-### Classification (6 scenarios)
-1. **💰 Crypto Buy/Sell Signal** - Trading signals with technical indicators (RSI, MACD)
-2. **🏦 Loan Approval Assistant** - Interpretable financial decision-making
-3. **📱 SMS Spam Detector** - Text-based filtering with Naive Bayes
-4. **💵 Fake Banknote Detector** - Precision boundary detection with SVM
-5. **❤️ Heart Disease Predictor** - Medical ensemble classification
-6. **📊 Customer Churn Predictor** - Subscription cancellation prediction
-
-### Regression (4 scenarios)
-7. **📈 Marketing ROI Calculator** - Linear trend analysis for ad spend
-8. **🚗 Used Car Price Estimator** - Non-linear vehicle pricing
-9. **🏠 Airbnb Nightly Rate** - Neighborhood-based pricing with KNN
-10. **✈️ Flight Delay Prediction** - Complex interaction modeling
-
-### Unsupervised (3 scenarios)
-11. **🎨 Color Palette Generator** - K-Means pixel clustering
-12. **📉 Stock Market Visualizer** - PCA dimensionality reduction
-13. **🔍 Credit Card Fraud Detection** - Isolation Forest anomaly detection
-
-**All scenarios include:**
-- ✅ Sample CSV datasets in `samples/` folder
-- ✅ Real-world industry examples
-- ✅ Optimized model parameters
-- ✅ Business insights and explanations
-
-See **[SCENARIOS.md](./SCENARIOS.md)** for detailed documentation.
-
----
-
-## 📚 Supported ML Models
-
-Our platform includes **13+ machine learning algorithms**:
-
-### Supervised Learning
-
-#### Classification
-- **Logistic Regression** - Binary/multi-class classification
-- **Decision Tree** - Interpretable rule-based decisions
-- **KNN (K-Nearest Neighbors)** - Pattern matching based on similarity
-- **SVM (Support Vector Machine)** - Maximum margin classification
-- **Random Forest** - Ensemble of decision trees
-- **Naive Bayes** - Probabilistic classifier
-- **XGBoost** - Gradient boosting champion
-
-#### Regression
-- **Linear Regression** - Continuous value prediction
-- **Decision Tree Regressor** - Non-linear regression
-- **KNN Regressor** - Neighborhood-based prediction
-- **Random Forest Regressor** - Ensemble regression
-- **XGBoost Regressor** - High-performance boosting
-
-### Unsupervised Learning
-
-- **K-Means Clustering** - Automatic customer/data segmentation
-- **PCA (Principal Component Analysis)** - Dimensionality reduction
-- **Isolation Forest** - Anomaly/fraud detection
-
----
-
-## 🎯 Use Cases
-
-| Use Case | Example | Recommended Model |
-|----------|---------|-------------------|
-| **Customer Churn** | Predict which customers will leave | Logistic Regression, Random Forest, XGBoost |
-| **Sales Forecasting** | Predict future revenue | Linear Regression, XGBoost Regressor |
-| **Customer Segmentation** | Group similar customers | K-Means Clustering |
-| **Fraud Detection** | Identify suspicious transactions | Isolation Forest, SVM |
-| **Product Recommendations** | Suggest items based on similarity | KNN |
-| **Disease Diagnosis** | Medical classification | Naive Bayes, Random Forest |
-| **Price Prediction** | Estimate house/product prices | Random Forest, XGBoost |
-
----
-
-## 💡 How It Works
-
-1. **Upload Your CSV** - Drag and drop or click to browse
-2. **Select Your Goal** - Choose business objective (churn, revenue, segmentation, etc.)
-3. **Automatic Analysis** - Platform runs model tournament and selects best algorithm
-4. **Get Insights** - View results with business-friendly explanations and real-world analogies
-
-### Example Real-World Explanation (KNN):
-
-> **🏘️ The Neighborhood Analogy**
-> 
-> KNN is like determining who you are based on your neighbors. If you speak Thai and your closest neighbors are Thai, you're probably Thai! The algorithm looks at the K closest data points and makes a decision based on what's most common among them.
->
-> **Real-World Scenario:** Imagine you're living in the USA but speak Thai. KNN checks your 5 closest neighbors - if 4 of them are Thai and 1 is American, it predicts you're Thai! Same applies to product recommendations...
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│           Docker Compose Network            │
-├─────────────────────────────────────────────┤
-│                                             │
-│  ┌──────────────┐      ┌─────────────────┐ │
-│  │   Frontend   │      │     Backend     │ │
-│  │  (Nginx)     │◄────►│   (FastAPI)     │ │
-│  │  Port 3000   │      │   Port 8000     │ │
-│  └──────────────┘      └─────────────────┘ │
-│        │                       │            │
-│        │                       ▼            │
-│        │              ┌─────────────────┐  │
-│        │              │ ML Engine       │  │
-│        │              │ - Auto Detection│  │
-│        └──────────────┤ - 10+ Models    │  │
-│         HTTP Requests │ - Explanations  │  │
-│                       └─────────────────┘  │
-└─────────────────────────────────────────────┘
-```
-
----
-
-## 📖 API Documentation
-
-### Analyze Endpoint
-
-**POST** `/analyze`
-
-Automatic model detection and analysis.
-
-**Request:**
-```bash
-curl -X POST http://localhost:8000/analyze \
-  -F "file=@your_data.csv" \
-  -F "business_objective=churn" \
-  -F "target_col=churned"
-```
-
-**Response:**
-```json
-{
-  "recommended_model": "Random Forest Classifier",
-  "task_type": "classification",
-  "metric_value": 0.92,
-  "reasoning": "Selected because it achieved the highest accuracy of 0.920...",
-  "business_insights": {
-    "headline": "ALERT: 42 entities flagged as high risk (18.5% of records)",
-    "recommended_action": "Prioritize outreach to high-risk customers..."
-  },
-  "model_explanation": {
-    "analogy": "🌲🌲🌲 Wisdom of the Crowd",
-    "how_it_works": "Random Forest creates hundreds of decision trees...",
-    "real_world_example": "Instead of one banker reviewing your application..."
-  }
-}
-```
-
-### Smart Dispatch Endpoint (NEW!)
-
-**POST** `/smart-dispatch`
-
-Run model tournament and get top 3 performers with performance metrics.
-
-**Request:**
-```bash
-curl -X POST http://localhost:8000/smart-dispatch \
-  -F "file=@samples/crypto_signals.csv" \
-  -F "target_col=buy_signal"
-```
-
-**Response:**
-```json
-{
-  "scenario": {
-    "name": "Crypto Buy/Sell Signal",
-    "icon": "💰",
-    "confidence": 92.5,
-    "industry": "Finance/Trading"
-  },
-  "top_models": [
-    {"name": "Logistic Regression", "score": 85.2, "score_type": "Accuracy"},
-    {"name": "Random Forest Classifier", "score": 83.1, "score_type": "Accuracy"},
-    {"name": "XGBoost Classifier", "score": 82.8, "score_type": "Accuracy"}
-  ],
-  "recommended_model": {
-    "name": "Logistic Regression",
-    "explanation": "Best for binary classification with probability estimates..."
-  },
-  "dataset_summary": {
-    "num_rows": 50,
-    "num_cols": 9,
-    "num_numeric": 8,
-    "num_categorical": 1
-  }
-}
-```
-
-### List Scenarios
-
-**GET** `/scenarios`
-
-Get all 13 available real-world ML scenarios.
+### Using Docker
 
 ```bash
-curl http://localhost:8000/scenarios
+# Build and run
+docker build -t insightai .
+docker run -p 8000:8000 insightai
+
+# Open in browser
+http://localhost:8000
 ```
-
-### Interactive API Docs
-
-Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
-
----
-
-## 🛠️ Tech Stack
-
-- **Backend:** Python 3.11, FastAPI, scikit-learn, XGBoost, pandas, numpy
-- **Frontend:** HTML5, CSS3 (Glassmorphism), Vanilla JavaScript
-- **Infrastructure:** Docker, Docker Compose, Nginx
-- **ML Libraries:** scikit-learn, XGBoost, pandas, numpy
 
 ---
 
@@ -295,135 +163,144 @@ Visit `http://localhost:8000/docs` for interactive Swagger UI documentation.
 
 ```
 machine-learning-model-lab/
-├── backend/
-│   ├── api/
-│   │   ├── routers/          # API endpoints
-│   │   ├── services/         # ML logic & explanations
-│   │   ├── schemas/          # Data models
-│   │   └── main.py           # FastAPI app
-│   └── Dockerfile
-├── frontend/
-│   ├── index.html            # Main UI
-│   ├── app.js                # Frontend logic
-│   ├── styles.css            # Premium styling
-│   ├── nginx.conf            # Server config
-│   └── Dockerfile
-├── docker-compose.yml        # Orchestration
-├── requirements.txt          # Python dependencies
-├── setup.ps1                 # Windows setup script
-├── setup.sh                  # Linux/Mac setup script
-└── README.md
+├── 📂 backend/
+│   ├── 📂 api/
+│   │   ├── main.py              # FastAPI application entry
+│   │   ├── routers/             # API route handlers
+│   │   ├── schemas/             # Pydantic models
+│   │   └── services/            # Business logic
+│   ├── logic.py                 # ML model training & prediction
+│   └── Dockerfile               # Backend container config
+│
+├── 📂 frontend/
+│   ├── index.html               # Main HTML (all pages)
+│   ├── styles.css               # CSS styles (dark theme)
+│   ├── script.js                # JavaScript logic
+│   └── Dockerfile               # Frontend container config
+│
+├── 📂 samples/                  # Sample CSV datasets
+│   ├── crypto_signals.csv
+│   ├── heart_disease.csv
+│   ├── used_car_prices.csv
+│   └── marketing_roi.csv
+│
+├── Dockerfile                   # Production Dockerfile
+├── docker-compose.yml           # Multi-container setup
+├── render.yaml                  # Render deployment config
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
 ```
 
 ---
 
-## 🔧 Configuration
+## 📡 API Documentation
+
+### Base URL
+- **Local:** `http://localhost:8000`
+- **Production:** `https://machine-learning-model-lab.onrender.com`
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Serve frontend |
+| `GET` | `/ping` | Health check |
+| `POST` | `/analyze` | Upload CSV & train model |
+| `POST` | `/predict/crypto` | Crypto trading prediction |
+| `POST` | `/predict/medical` | Medical risk prediction |
+| `POST` | `/predict/car_price` | Vehicle price estimation |
+| `POST` | `/predict/sales` | Sales/ROI forecast |
+
+### Example Request
+
+```bash
+curl -X POST "https://machine-learning-model-lab.onrender.com/predict/crypto" \
+  -H "Content-Type: application/json" \
+  -d '{"open": 65000, "close": 65500, "volume": 1000000, "rsi": 55}'
+```
+
+### Example Response
+
+```json
+{
+  "signal": "BUY",
+  "confidence": 0.87,
+  "recommendation": "Strong bullish momentum detected"
+}
+```
+
+---
+
+## ☁️ Deployment
+
+### Render (Recommended)
+
+1. Fork this repository
+2. Go to [render.com](https://render.com) and create a new Web Service
+3. Connect your GitHub repository
+4. Select **Docker** as the runtime
+5. Choose the **Free** instance type
+6. Deploy!
 
 ### Environment Variables
 
-Copy `.env.example` to `.env` and customize:
-
-```bash
-API_BASE_URL=http://localhost:8000
-FRONTEND_PORT=3000
-BACKEND_PORT=8000
-DEBUG=false
-```
-
-### Docker Ports
-
-- Frontend: `3000` (configurable in `docker-compose.yml`)
-- Backend: `8000` (configurable in `docker-compose.yml`)
+No additional environment variables are required. The app automatically uses Render's `PORT` variable.
 
 ---
 
-## 📊 Sample Datasets
+## 📚 Documentation
 
-Sample CSV files are available in the `samples/` directory:
+### How It Works
 
-- `classification_iris.csv` - Classification example (Iris dataset)
-- `regression_housing.csv` - Regression example (House prices)
-- `clustering_customers.csv` - Clustering example (Customer segmentation)
+1. **User selects a scenario** from the dashboard
+2. **Sample CSV auto-loads** and is sent to the backend
+3. **Backend detects scenario** based on column names
+4. **Model trains** on the sample data
+5. **User adjusts parameters** using sliders/inputs
+6. **Real-time predictions** are returned with confidence scores
 
----
+### Scenario Detection
 
-## 🐞 Troubleshooting
+The backend automatically detects which scenario to use based on CSV column patterns:
 
-### Docker Issues
-
-**Problem:** "Docker is not running"
-```bash
-# Windows: Start Docker Desktop
-# Linux: sudo systemctl start docker
-```
-
-**Problem:** Port already in use
-```bash
-# Change ports in docker-compose.yml
-# Or stop conflicting services
-```
-
-### Build Failures
-
-```bash
-# Clean rebuild
-docker-compose down
-docker-compose build --no-cache
-docker-compose up
-```
-
-### Backend Errors
-
-```bash
-# View logs
-docker-compose logs backend
-
-# Access container
-docker exec -it ml-backend bash
-```
+- **Crypto:** `rsi`, `macd`, `volume`, `buy_signal`
+- **Medical:** `age`, `blood_pressure`, `glucose`, `bmi`
+- **Car:** `year`, `mileage`, `horsepower`, `price`
+- **Sales:** `ad_spend`, `clicks`, `impressions`, `revenue`
 
 ---
 
 ## 🤝 Contributing
 
-Contributions welcome! Please:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is open for personal, educational, and experimental use.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 👤 Author
 
-**dev-edward-ai**
-- GitHub: [@dev-edward-ai](https://github.com/dev-edward-ai)
+**Novaz-Edd**
+
+- GitHub: [@Novaz-Edd](https://github.com/Novaz-Edd)
+- Hashnode: [novaz-edd.hashnode.dev](https://novaz-edd.hashnode.dev)
 
 ---
 
-## 🙏 Acknowledgments
+<div align="center">
 
-- Built with scikit-learn, XGBoost, FastAPI
-- UI inspired by modern design systems
-- ML explanations crafted for clarity and accessibility
+**⭐ Star this repo if you found it helpful!**
 
----
+Made with ❤️ and Python
 
-**Ready to transform your data into insights? Get started in 30 seconds!** 🚀
-
-```bash
-# Windows
-.\setup.ps1
-
-# Linux/Mac
-./setup.sh
-```
-
-Then visit **http://localhost:3000** and upload your first CSV!
+</div>
