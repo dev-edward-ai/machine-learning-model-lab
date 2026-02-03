@@ -1,405 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoML Intelligence Platform - Professional ML Model Detection</title>
-    <meta name="description"
-        content="Professional AutoML platform with automatic model detection, real-world explanations, and 10+ ML algorithms">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-
-    <!-- Chart.js for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
+    <title>InsightAI | Business Intelligence Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-    <!-- Animated Particle Background -->
-    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
 
-    <!-- Animated gradient overlay -->
-    <div class="gradient-overlay"></div>
-
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
+    <!-- SCENARIO SELECTOR PAGE -->
+    <div id="selector-page" class="page active">
+        <nav class="navbar">
             <div class="nav-brand">
-                <span class="brand-icon">🤖</span>
-                <span class="brand-text">AutoML<span class="gradient-text">Intelligence</span></span>
+                <i class="fas fa-brain"></i>
+                <span>InsightAI</span>
             </div>
             <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#upload" class="nav-link">Analyze</a>
-                <a href="#models" class="nav-link">Models</a>
-                <a href="http://localhost:8000/docs" target="_blank" class="nav-link-special">
-                    API Docs <span class="external-icon">↗</span>
-                </a>
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Documentation</a>
+                <a href="#" class="nav-link">API</a>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
+        <header class="hero">
             <div class="hero-badge">
-                <span class="badge-dot"></span>
-                <span>10+ ML Models • Auto-Detection • Production Ready</span>
+                <i class="fas fa-sparkles"></i>
+                AI-Powered Analytics
             </div>
-            <h1 class="hero-title">
-                Transform Data Into
-                <span class="gradient-text-animated">Intelligent Insights</span>
-            </h1>
-            <p class="hero-description" id="typingText">
-                <span class="typing-cursor">|</span>
-            </p>
-            <div class="hero-cta">
-                <a href="#upload" class="btn-hero-primary">
-                    <span>Start Analyzing</span>
-                    <span class="btn-arrow">→</span>
-                </a>
-                <a href="#features" class="btn-hero-secondary">
-                    <span class="play-icon">▶</span>
-                    <span>See How It Works</span>
-                </a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-value">10+</div>
-                    <div class="stat-label">ML Models</div>
+            <h1>Business Intelligence<br><span class="gradient-text">Made Simple</span></h1>
+            <p class="hero-subtitle">Choose a scenario below to experience real-time ML predictions.<br>Each module auto-loads curated data and trains specialized models.</p>
+        </header>
+
+        <div class="scenario-grid">
+            <div class="scenario-card crypto" onclick="loadScenario('CRYPTO')">
+                <div class="card-glow"></div>
+                <div class="card-icon">
+                    <i class="fab fa-bitcoin"></i>
                 </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <div class="stat-value">100%</div>
-                    <div class="stat-label">Automatic</div>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <div class="stat-value">⚡</div>
-                    <div class="stat-label">Instant Analysis</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="features-section">
-        <div class="section-header">
-            <h2 class="section-title">Powerful Features</h2>
-            <p class="section-subtitle">Everything you need for intelligent data analysis</p>
-        </div>
-        <div class="features-grid">
-            <div class="feature-card" data-aos="fade-up" data-delay="0">
-                <div class="feature-icon gradient-1">🎯</div>
-                <h3 class="feature-title">Auto Model Detection</h3>
-                <p class="feature-description">Upload your CSV and our AI automatically selects the best algorithm from
-                    10+ models</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-delay="100">
-                <div class="feature-icon gradient-2">💡</div>
-                <h3 class="feature-title">Real-World Explanations</h3>
-                <p class="feature-description">Every model comes with intuitive analogies that anyone can understand</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-delay="200">
-                <div class="feature-icon gradient-3">📊</div>
-                <h3 class="feature-title">Business Insights</h3>
-                <p class="feature-description">Get actionable recommendations tailored to your specific business
-                    objectives</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-delay="300">
-                <div class="feature-icon gradient-4">⚡</div>
-                <h3 class="feature-title">Lightning Fast</h3>
-                <p class="feature-description">Instant analysis with optimized algorithms and parallel processing</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-delay="400">
-                <div class="feature-icon gradient-5">🐳</div>
-                <h3 class="feature-title">Docker Ready</h3>
-                <p class="feature-description">One-command deployment that works on any laptop or server</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-delay="500">
-                <div class="feature-icon gradient-6">🎨</div>
-                <h3 class="feature-title">Premium UI</h3>
-                <p class="feature-description">Beautiful dark theme with glassmorphism and smooth animations</p>
-            </div>
-        </div>
-        </div>
-    </section>
-
-    <!-- Scenario Showcase Section (NEW!) -->
-    <section id="scenarios" class="scenarios-section">
-        <div class="scenarios-container">
-            <div class="section-header">
-                <h2 class="section-title">🎯 Explore 13 Real-World Scenarios</h2>
-                <p class="section-subtitle">Click any scenario to try it with sample data</p>
-            </div>
-
-            <!-- Scenario Cards Grid -->
-            <div class="scenarios-grid" id="scenariosGrid">
-                <!-- Cards will be dynamically loaded here by JavaScript -->
-                <div class="scenarios-loading">
-                    <div class="loading-spinner"></div>
-                    <p>Loading scenarios...</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Upload & Analysis Section -->
-    <section id="upload" class="upload-section">
-        <div class="upload-container">
-            <div class="upload-header">
-                <h2 class="section-title">Analyze Your Data</h2>
-                <p class="section-subtitle">Upload your CSV and let AI find the perfect model</p>
-            </div>
-
-            <form id="uploadForm" class="upload-form">
-                <!-- File Upload Zone -->
-                <div class="upload-zone-wrapper">
-                    <div class="upload-zone" id="dropZone">
-                        <input type="file" id="fileInput" accept=".csv" hidden>
-                        <div class="upload-zone-content" id="uploadZoneContent">
-                            <div class="upload-icon-wrapper">
-                                <div class="upload-icon-circle">
-                                    <span class="upload-icon">📁</span>
-                                </div>
-                            </div>
-                            <h3 class="upload-title">Drop your CSV file here</h3>
-                            <p class="upload-subtitle">or <span class="click-to-browse">click to browse</span></p>
-                            <div class="upload-supported">
-                                <span class="supported-badge">✓ .CSV files only</span>
-                                <span class="supported-badge">✓ Auto-detection enabled</span>
-                            </div>
-                        </div>
-
-                        <!-- File Info (shown after upload) -->
-                        <div class="file-info hidden" id="fileInfo">
-                            <div class="file-info-icon">✓</div>
-                            <div class="file-info-details">
-                                <div class="file-name" id="fileName">filename.csv</div>
-                                <div class="file-size" id="fileSize">0 KB</div>
-                            </div>
-                            <button type="button" class="file-remove" id="fileRemove">✕</button>
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="upload-progress hidden" id="uploadProgress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <div class="progress-text" id="progressText">Uploading...</div>
+                <div class="card-content">
+                    <span class="card-tag">Classification</span>
+                    <h2>Crypto Trading</h2>
+                    <p>Real-time buy/sell signal predictions using technical indicators and market momentum.</p>
+                    <div class="card-model">
+                        <i class="fas fa-microchip"></i>
+                        Logistic Regression
                     </div>
                 </div>
+                <div class="card-action">
+                    <span>Launch Terminal</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
 
-                <!-- Configuration Options -->
-                <div class="config-section">
-                    <div class="config-row">
-                        <div class="form-group">
-                            <label for="targetColumn" class="form-label">
-                                <span class="label-text">Target Column</span>
-                                <span class="label-optional">Optional</span>
-                            </label>
-                            <input type="text" id="targetColumn" class="form-input"
-                                placeholder="e.g., price, churned, category">
-                            <span class="input-hint">Leave blank for clustering/unsupervised learning</span>
+            <div class="scenario-card medical" onclick="loadScenario('MEDICAL')">
+                <div class="card-glow"></div>
+                <div class="card-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="card-content">
+                    <span class="card-tag">Classification</span>
+                    <h2>Medical Diagnosis</h2>
+                    <p>Health risk assessment powered by patient vitals and clinical markers.</p>
+                    <div class="card-model">
+                        <i class="fas fa-microchip"></i>
+                        K-Nearest Neighbors
+                    </div>
+                </div>
+                <div class="card-action">
+                    <span>Start Screening</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="scenario-card car" onclick="loadScenario('CAR_PRICE')">
+                <div class="card-glow"></div>
+                <div class="card-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="card-content">
+                    <span class="card-tag">Regression</span>
+                    <h2>Vehicle Pricing</h2>
+                    <p>Accurate market valuations based on specifications, age, and condition.</p>
+                    <div class="card-model">
+                        <i class="fas fa-microchip"></i>
+                        Decision Tree Regressor
+                    </div>
+                </div>
+                <div class="card-action">
+                    <span>Get Valuation</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="scenario-card sales" onclick="loadScenario('SALES')">
+                <div class="card-glow"></div>
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-content">
+                    <span class="card-tag">Regression</span>
+                    <h2>Sales Forecasting</h2>
+                    <p>ROI prediction engine for marketing campaigns and budget optimization.</p>
+                    <div class="card-model">
+                        <i class="fas fa-microchip"></i>
+                        Random Forest
+                    </div>
+                </div>
+                <div class="card-action">
+                    <span>Forecast ROI</span>
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Built with <i class="fas fa-heart"></i> using FastAPI + scikit-learn</p>
+        </footer>
+    </div>
+
+    <!-- CRYPTO TRADING PAGE -->
+    <div id="crypto-page" class="page">
+        <nav class="navbar scenario-nav">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </button>
+            <div class="nav-title">
+                <i class="fab fa-bitcoin"></i>
+                Trading Terminal
+            </div>
+            <div class="model-badge" id="crypto-model-chip">
+                <i class="fas fa-microchip"></i>
+                Logistic Regression
+            </div>
+            <a href="https://novaz-edd.hashnode.dev/logic-behind-logistic-regression" target="_blank" class="learn-more-link">
+                <i class="fas fa-book-open"></i>
+                Learn how this model works
+            </a>
+        </nav>
+
+        <div class="app-container">
+            <div class="app-header crypto-theme">
+                <h1><i class="fas fa-chart-line"></i> Crypto Signal Analyzer</h1>
+                <p>Enter market data to receive AI-powered trading recommendations</p>
+            </div>
+
+            <div class="app-grid">
+                <div class="panel input-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-sliders"></i>
+                        <h3>Market Parameters</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <label><i class="fas fa-arrow-up"></i> Open Price ($)</label>
+                            <input type="number" id="crypto-open" value="65000" step="100" class="input-field">
                         </div>
-
-                        <div class="form-group">
-                            <label for="businessObjective" class="form-label">
-                                <span class="label-text">Business Objective</span>
-                            </label>
-                            <div class="select-wrapper">
-                                <select id="businessObjective" class="form-select">
-                                    <option value="">Select your goal...</option>
-                                    <option value="churn">🎯 Predict Customer Churn</option>
-                                    <option value="revenue">💰 Forecast Revenue/Sales</option>
-                                    <option value="segment">👥 Customer Segmentation</option>
-                                    <option value="fraud">🚨 Detect Fraud/Anomalies</option>
-                                    <option value="classification">📋 General Classification</option>
-                                    <option value="regression">📈 General Regression</option>
-                                    <option value="other">🤖 Let AI Decide</option>
-                                </select>
-                                <span class="select-arrow">▼</span>
+                        <div class="input-group">
+                            <label><i class="fas fa-arrow-down"></i> Close Price ($)</label>
+                            <input type="number" id="crypto-close" value="65500" step="100" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-layer-group"></i> Volume</label>
+                            <input type="number" id="crypto-volume" value="1000000" step="100000" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-gauge"></i> RSI Index</label>
+                            <div class="slider-container">
+                                <input type="range" id="crypto-rsi" min="0" max="100" value="55" class="slider crypto-slider">
+                                <div class="slider-value" id="crypto-rsi-value">55</div>
+                            </div>
+                            <div class="slider-labels">
+                                <span>Oversold</span>
+                                <span>Overbought</span>
                             </div>
                         </div>
+                        <button class="btn-primary crypto-btn" onclick="predictCrypto()">
+                            <i class="fas fa-bolt"></i>
+                            Generate Signal
+                        </button>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn-analyze" id="analyzeBtn">
-                    <span class="btn-text">Analyze with AI</span>
-                    <span class="btn-sparkle">✨</span>
-                    <div class="btn-shine"></div>
-                </button>
-
-                <!-- Status Indicator -->
-                <div class="status-indicator hidden" id="statusIndicator">
-                    <div class="status-spinner"></div>
-                    <span class="status-text" id="statusText">Processing your dataset...</span>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- Results Section -->
-    <section id="results" class="results-section hidden">
-        <div class="results-container">
-            <div class="results-header">
-                <h2 class="section-title">Analysis Results</h2>
-                <button class="btn-reset" id="resetBtn">
-                    <span>🔄</span>
-                    <span>Analyze Another</span>
-                </button>
-            </div>
-
-            <div id="resultsContent" class="results-content">
-                <!-- Results will be populated here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Post-Analysis Success Modal (NEW!) -->
-    <div class="demo-modal-overlay hidden" id="demoModalOverlay">
-        <div class="demo-modal" id="demoModal">
-            <div class="demo-modal-success">
-                <div class="success-checkmark">
-                    <div class="check-icon">
-                        <span class="icon-line line-tip"></span>
-                        <span class="icon-line line-long"></span>
-                        <div class="icon-circle"></div>
-                        <div class="icon-fix"></div>
+                <div class="panel output-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-signal"></i>
+                        <h3>Trading Signal</h3>
                     </div>
-                </div>
-                <h2 class="demo-modal-title">🎉 Analysis Complete!</h2>
-            </div>
-
-            <div class="demo-modal-content">
-                <div class="scenario-info">
-                    <div class="scenario-icon-large" id="modalScenarioIcon">🤖</div>
-                    <h3 class="modal-scenario-name" id="modalScenarioName">Scenario Detected</h3>
-                    <p class="modal-scenario-description" id="modalScenarioDescription">Description here</p>
-                </div>
-
-                <div class="model-performance-summary">
-                    <div class="performance-badge">
-                        <span class="badge-label">Top Model</span>
-                        <span class="badge-value" id="modalModelName">Random Forest</span>
+                    <div class="panel-body">
+                        <div id="crypto-result" class="result-display neutral">
+                            <div class="result-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="result-text">Awaiting Input</div>
+                            <div class="result-sub">Configure parameters and click Generate</div>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value" id="crypto-confidence">—</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Recommendation</span>
+                                <span class="metric-value" id="crypto-recommendation">—</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="performance-badge">
-                        <span class="badge-label">Accuracy</span>
-                        <span class="badge-value gradient-text" id="modalModelScore">87.3%</span>
-                    </div>
-                    <div class="performance-badge">
-                        <span class="badge-label">Confidence</span>
-                        <span class="badge-value" id="modalConfidence">92%</span>
-                    </div>
-                </div>
-
-                <div class="demo-prompt">
-                    <p class="demo-prompt-text">
-                        Would you like to see this model in action with a <strong>live interactive demo</strong>?
-                    </p>
-                </div>
-
-                <div class="demo-modal-actions">
-                    <button class="btn-demo-primary" id="btnContinueToDemo">
-                        <span>🚀 Continue to Live Demo</span>
-                        <span class="btn-arrow">→</span>
-                    </button>
-                    <button class="btn-demo-secondary" id="btnDownloadResults">
-                        <span>💾 Download Results</span>
-                    </button>
-                    <button class="btn-demo-close" id="btnCloseDemoModal">
-                        <span>← Back to Results</span>
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Demo Page Container (NEW!) -->
-    <div class="demo-page-container hidden" id="demoPageContainer">
-        <!-- Demo content will be dynamically inserted here -->
+    <!-- MEDICAL DIAGNOSIS PAGE -->
+    <div id="medical-page" class="page">
+        <nav class="navbar scenario-nav">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </button>
+            <div class="nav-title">
+                <i class="fas fa-heartbeat"></i>
+                Health Screener
+            </div>
+            <div class="model-badge" id="medical-model-chip">
+                <i class="fas fa-microchip"></i>
+                K-Nearest Neighbors
+            </div>
+            <a href="https://novaz-edd.hashnode.dev/logic-behind-knn" target="_blank" class="learn-more-link">
+                <i class="fas fa-book-open"></i>
+                Learn how this model works
+            </a>
+        </nav>
+
+        <div class="app-container">
+            <div class="app-header medical-theme">
+                <h1><i class="fas fa-stethoscope"></i> Risk Assessment Tool</h1>
+                <p>Input patient vitals for AI-powered health risk analysis</p>
+            </div>
+
+            <div class="app-grid">
+                <div class="panel input-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-user-nurse"></i>
+                        <h3>Patient Vitals</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <label><i class="fas fa-birthday-cake"></i> Age (years)</label>
+                            <div class="slider-container">
+                                <input type="range" id="medical-age" min="18" max="90" value="45" class="slider medical-slider">
+                                <div class="slider-value" id="medical-age-value">45</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-weight"></i> BMI</label>
+                            <div class="slider-container">
+                                <input type="range" id="medical-bmi" min="15" max="50" step="0.1" value="28.5" class="slider medical-slider">
+                                <div class="slider-value" id="medical-bmi-value">28.5</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-heart-pulse"></i> Blood Pressure (mmHg)</label>
+                            <input type="number" id="medical-bp" value="120" step="5" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-droplet"></i> Glucose Level (mg/dL)</label>
+                            <div class="slider-container">
+                                <input type="range" id="medical-glucose" min="70" max="250" value="125" class="slider medical-slider">
+                                <div class="slider-value" id="medical-glucose-value">125</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary medical-btn" onclick="predictMedical()">
+                            <i class="fas fa-microscope"></i>
+                            Analyze Risk
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel output-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h3>Risk Assessment</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="medical-result" class="result-display neutral">
+                            <div class="result-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="result-text">Awaiting Input</div>
+                            <div class="result-sub">Enter patient data and click Analyze</div>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Risk Level</span>
+                                <span class="metric-value" id="medical-risk">—</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value" id="medical-confidence">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Models Showcase -->
-    <section id="models" class="models-section">
-        <div class="section-header">
-            <h2 class="section-title">Supported ML Models</h2>
-            <p class="section-subtitle">Industry-leading algorithms for every use case</p>
-        </div>
+    <!-- CAR PRICING PAGE -->
+    <div id="car-page" class="page">
+        <nav class="navbar scenario-nav">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </button>
+            <div class="nav-title">
+                <i class="fas fa-car"></i>
+                Vehicle Valuator
+            </div>
+            <div class="model-badge" id="car-model-chip">
+                <i class="fas fa-microchip"></i>
+                Decision Tree Regressor
+            </div>
+            <a href="https://novaz-edd.hashnode.dev/decision-tree-regressor" target="_blank" class="learn-more-link">
+                <i class="fas fa-book-open"></i>
+                Learn how this model works
+            </a>
+        </nav>
 
-        <div class="models-grid">
-            <div class="model-category">
-                <h3 class="category-title">
-                    <span class="category-icon">🎯</span>
-                    Classification
-                </h3>
-                <div class="models-list">
-                    <div class="model-item">Logistic Regression</div>
-                    <div class="model-item">Decision Tree</div>
-                    <div class="model-item">K-Nearest Neighbors</div>
-                    <div class="model-item">Support Vector Machine</div>
-                    <div class="model-item">Random Forest</div>
-                    <div class="model-item">Naive Bayes</div>
-                    <div class="model-item">XGBoost</div>
+        <div class="app-container">
+            <div class="app-header car-theme">
+                <h1><i class="fas fa-tags"></i> Smart Price Estimator</h1>
+                <p>Get accurate market valuations based on vehicle specifications</p>
+            </div>
+
+            <div class="app-grid">
+                <div class="panel input-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-car-side"></i>
+                        <h3>Vehicle Details</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <label><i class="fas fa-calendar"></i> Year of Manufacture</label>
+                            <div class="slider-container">
+                                <input type="range" id="car-year" min="2000" max="2024" value="2015" class="slider car-slider">
+                                <div class="slider-value" id="car-year-value">2015</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-road"></i> Mileage (km)</label>
+                            <input type="number" id="car-mileage" value="80000" step="5000" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-gauge-high"></i> Horsepower</label>
+                            <div class="slider-container">
+                                <input type="range" id="car-hp" min="50" max="400" value="200" class="slider car-slider">
+                                <div class="slider-value" id="car-hp-value">200 HP</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary car-btn" onclick="predictCar()">
+                            <i class="fas fa-calculator"></i>
+                            Estimate Value
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel output-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h3>Market Valuation</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="car-result" class="result-display price-display neutral">
+                            <div class="price-tag">
+                                <span class="currency">$</span>
+                                <span class="price-value">0</span>
+                            </div>
+                            <div class="result-sub">Estimated Market Value</div>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Price Range</span>
+                                <span class="metric-value" id="car-range">—</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value" id="car-confidence">—</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="model-category">
-                <h3 class="category-title">
-                    <span class="category-icon">📈</span>
-                    Regression
-                </h3>
-                <div class="models-list">
-                    <div class="model-item">Linear Regression</div>
-                    <div class="model-item">Decision Tree Regressor</div>
-                    <div class="model-item">KNN Regressor</div>
-                    <div class="model-item">Random Forest Regressor</div>
-                    <div class="model-item">XGBoost Regressor</div>
-                </div>
+    <!-- SALES FORECASTING PAGE -->
+    <div id="sales-page" class="page">
+        <nav class="navbar scenario-nav">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </button>
+            <div class="nav-title">
+                <i class="fas fa-chart-line"></i>
+                ROI Simulator
+            </div>
+            <div class="model-badge" id="sales-model-chip">
+                <i class="fas fa-microchip"></i>
+                Random Forest
+            </div>
+            <a href="https://novaz-edd.hashnode.dev/random-forest-regressor" target="_blank" class="learn-more-link">
+                <i class="fas fa-book-open"></i>
+                Learn how this model works
+            </a>
+        </nav>
+
+        <div class="app-container">
+            <div class="app-header sales-theme">
+                <h1><i class="fas fa-coins"></i> Revenue Forecaster</h1>
+                <p>Predict campaign ROI with AI-driven sales projections</p>
             </div>
 
-            <div class="model-category">
-                <h3 class="category-title">
-                    <span class="category-icon">🔍</span>
-                    Unsupervised
-                </h3>
-                <div class="models-list">
-                    <div class="model-item">K-Means Clustering</div>
-                    <div class="model-item">PCA</div>
-                    <div class="model-item">Isolation Forest</div>
+            <div class="app-grid">
+                <div class="panel input-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-bullhorn"></i>
+                        <h3>Campaign Parameters</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <label><i class="fas fa-money-bill-wave"></i> Ad Spend ($)</label>
+                            <div class="slider-container">
+                                <input type="range" id="sales-spend" min="500" max="50000" step="100" value="5000" class="slider sales-slider">
+                                <div class="slider-value" id="sales-spend-value">$5,000</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-mouse-pointer"></i> Social Clicks</label>
+                            <div class="slider-container">
+                                <input type="range" id="sales-clicks" min="100" max="100000" step="500" value="10000" class="slider sales-slider">
+                                <div class="slider-value" id="sales-clicks-value">10,000</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary sales-btn" onclick="predictSales()">
+                            <i class="fas fa-rocket"></i>
+                            Forecast Revenue
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel output-panel">
+                    <div class="panel-header">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Revenue Projection</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="sales-result" class="result-display price-display neutral">
+                            <div class="price-tag">
+                                <span class="currency">$</span>
+                                <span class="price-value">0</span>
+                            </div>
+                            <div class="result-sub">Predicted Revenue</div>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">ROI Multiplier</span>
+                                <span class="metric-value" id="sales-roi">—</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Expected Profit</span>
+                                <span class="metric-value" id="sales-profit">—</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <span class="brand-icon">🤖</span>
-                <span class="brand-text">AutoML Intelligence</span>
-            </div>
-            <div class="footer-links">
-                <a href="http://localhost:8000/docs" target="_blank" class="footer-link">API Documentation</a>
-                <a href="https://github.com/dev-edward-ai" target="_blank" class="footer-link">GitHub</a>
-                <a href="#" class="footer-link">Privacy</a>
-            </div>
-            <div class="footer-credit">
-                Built with <span class="heart">❤️</span> by <strong>dev-edward-ai</strong>
-            </div>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <span>Training Model...</span>
         </div>
-    </footer>
+    </div>
 
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>
