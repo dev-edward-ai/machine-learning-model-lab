@@ -46,20 +46,26 @@ app.add_middleware(
 CURRENT_MODEL = None
 CURRENT_SCENARIO = None
 
-# Mount static files for production (Render deployment)
-# Check multiple possible paths for frontend and samples
-frontend_paths = ["./frontend", "../frontend", "/app/frontend"]
-samples_paths = ["./samples", "../samples", "/app/samples"]
+# Determine the base path (works for both local and Docker/Render)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-for path in frontend_paths:
-    if os.path.exists(path):
-        app.mount("/frontend", StaticFiles(directory=path), name="frontend")
-        break
+# Check if running in Docker/Render (/app directory)
+if os.path.exists("/app/frontend"):
+    FRONTEND_DIR = "/app/frontend"
+    SAMPLES_DIR = "/app/samples"
+elif os.path.exists(os.path.join(BASE_DIR, "frontend")):
+    FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+    SAMPLES_DIR = os.path.join(BASE_DIR, "samples")
+else:
+    FRONTEND_DIR = "./frontend"
+    SAMPLES_DIR = "./samples"
 
-for path in samples_paths:
-    if os.path.exists(path):
-        app.mount("/samples", StaticFiles(directory=path), name="samples")
-        break
+# Mount static files
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
+    
+if os.path.exists(SAMPLES_DIR):
+    app.mount("/samples", StaticFiles(directory=SAMPLES_DIR), name="samples")
 
 
 # ============================================================================
@@ -69,7 +75,10 @@ for path in samples_paths:
 @app.get("/", tags=["root"])
 def root():
     """Redirect to frontend."""
-    return FileResponse("frontend/index.html") if os.path.exists("frontend/index.html") else {"message": "InsightAI API", "docs": "/docs"}
+    index_path = os.path.join(FRONTEND_DIR, "index.html") if os.path.exists(FRONTEND_DIR) else None
+    if index_path and os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "InsightAI API", "docs": "/docs"}
 
 
 @app.get("/ping", tags=["health"])
