@@ -46,45 +46,53 @@ app.add_middleware(
 CURRENT_MODEL = None
 CURRENT_SCENARIO = None
 
-# Determine the base path (works for both local and Docker/Render)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Check if running in Docker/Render (/app directory)
-if os.path.exists("/app/frontend"):
-    FRONTEND_DIR = "/app/frontend"
-    SAMPLES_DIR = "/app/samples"
-elif os.path.exists(os.path.join(BASE_DIR, "frontend")):
-    FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-    SAMPLES_DIR = os.path.join(BASE_DIR, "samples")
-else:
-    FRONTEND_DIR = "./frontend"
-    SAMPLES_DIR = "./samples"
-
-# Mount static files
-if os.path.exists(FRONTEND_DIR):
-    app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
-    
-if os.path.exists(SAMPLES_DIR):
-    app.mount("/samples", StaticFiles(directory=SAMPLES_DIR), name="samples")
-
 
 # ============================================================================
 # ROOT & HEALTH CHECK
 # ============================================================================
 
-@app.get("/", tags=["root"])
-def root():
-    """Redirect to frontend."""
-    index_path = os.path.join(FRONTEND_DIR, "index.html") if os.path.exists(FRONTEND_DIR) else None
-    if index_path and os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"message": "InsightAI API", "docs": "/docs"}
-
-
 @app.get("/ping", tags=["health"])
 def ping():
     """Health check endpoint."""
     return {"status": "healthy", "message": "Business Insight Generator is running"}
+
+
+@app.get("/", tags=["root"])
+def root():
+    """Serve frontend index."""
+    # Check multiple possible paths for Docker/Render
+    paths_to_try = ["/app/frontend/index.html", "./frontend/index.html", "../frontend/index.html"]
+    for path in paths_to_try:
+        if os.path.exists(path):
+            return FileResponse(path, media_type="text/html")
+    return {"message": "InsightAI API", "docs": "/docs"}
+
+
+# ============================================================================
+# STATIC FILE SERVING - Must be defined after routes
+# ============================================================================
+
+# Try to mount static files from various paths
+frontend_paths = ["/app/frontend", "./frontend", "../frontend"]
+samples_paths = ["/app/samples", "./samples", "../samples"]
+
+for path in frontend_paths:
+    if os.path.exists(path):
+        try:
+            app.mount("/frontend", StaticFiles(directory=path), name="frontend")
+            print(f"Mounted frontend from: {path}")
+            break
+        except Exception as e:
+            print(f"Failed to mount frontend from {path}: {e}")
+
+for path in samples_paths:
+    if os.path.exists(path):
+        try:
+            app.mount("/samples", StaticFiles(directory=path), name="samples")
+            print(f"Mounted samples from: {path}")
+            break
+        except Exception as e:
+            print(f"Failed to mount samples from {path}: {e}")
 
 
 # ============================================================================
