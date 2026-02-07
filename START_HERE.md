@@ -16,7 +16,7 @@ Your AutoML platform has been successfully enhanced with:
 ### Option 1: Docker (Easiest)
 
 ```bash
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab
 docker-compose up --build
 ```
 
@@ -26,13 +26,13 @@ Then open: **http://localhost:3000**
 
 **Terminal 1 - Backend:**
 ```bash
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab\backend
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab\backend
 uvicorn api.main:app --reload --port 8000
 ```
 
 **Terminal 2 - Frontend:**
 ```bash
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab\frontend
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab\frontend
 python -m http.server 3000
 ```
 
@@ -47,7 +47,7 @@ curl http://localhost:8000/scenarios
 
 ### Test 2: Crypto Trading Analysis
 ```bash
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab
 
 curl -X POST http://localhost:8000/smart-dispatch ^
   -F "file=@samples/crypto_signals.csv" ^
@@ -157,7 +157,7 @@ When you upload `crypto_signals.csv`:
 
 Run this to verify everything works:
 ```bash
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab
 python test_complete_system.py
 ```
 

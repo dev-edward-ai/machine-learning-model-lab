@@ -160,7 +160,7 @@ All target datasets present and valid
 ### Quick Start (Docker - Recommended)
 
 ```bash
-cd machine-learning-model-lab
+cd mlmodels-lab
 docker-compose up --build
 ```
 
@@ -238,7 +238,7 @@ curl http://localhost:8000/ping
 ## 📁 File Structure
 
 ```
-machine-learning-model-lab/
+mlmodels-lab/
 ├── backend/
 │   ├── api/
 │   │   ├── main.py                   (✅ UPDATED - new endpoints)

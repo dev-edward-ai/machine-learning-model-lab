@@ -6,7 +6,7 @@
 
 **Branch:** `main`  
 **Commit:**  `ae91c9c`  
-**Remote:** `origin` → https://github.com/.../machine-learning-model-lab.git
+**Remote:** `origin` → https://github.com/Novaz-Edd/mlmodels-lab.git
 
 ---
 
@@ -52,7 +52,7 @@
 
 Your code is now live at:
 ```
-https://github.com/YOUR_USERNAME/machine-learning-model-lab
+https://github.com/Novaz-Edd/mlmodels-lab
 ```
 
 *(Replace YOUR_USERNAME with your actual GitHub username)*

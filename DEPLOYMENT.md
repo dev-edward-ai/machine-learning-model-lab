@@ -71,15 +71,25 @@ GET /ping           # Health check
 ## 🎯 How to Deploy
 
 ### Option 1: Docker (Recommended)
-```bash
-cd machine-learning-model-lab
-docker-compose up --build
-```
 
-**Access:**
-- Frontend: http://localhost:3000
-- Backend: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+## 🛠️ Local Development (No Docker)
+1. **Backend (API):**
+  ```bash
+  cd backend
+  pip install -r ../requirements.txt
+  uvicorn api.main:app --reload --port 8000
+  ```
+
+2. **Frontend (Static Server):**
+  ```bash
+  cd frontend
+  python -m http.server 3000
+  ```
+
+3. **Access the platform:**
+  - Frontend: http://localhost:3000
+  - Backend API: http://localhost:8000
+  - API Docs: http://localhost:8000/docs
 
 ### Option 2: Manual
 ```bash

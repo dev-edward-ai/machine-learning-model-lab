@@ -4,7 +4,7 @@
 
 ![InsightAI Banner](https://img.shields.io/badge/InsightAI-ML%20Platform-8b5cf6?style=for-the-badge&logo=python&logoColor=white)
 
-[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-machine--learning--model--lab.onrender.com-10b981?style=for-the-badge)](https://machine-learning-model-lab.onrender.com)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-mlmodels--lab.onrender.com-10b981?style=for-the-badge)](https://mlmodels-lab.onrender.com)
 [![Python](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-f7931e?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
@@ -12,7 +12,7 @@
 
 **An interactive machine learning platform demonstrating real-world business scenarios with specialized ML models.**
 
-[Live Demo](https://machine-learning-model-lab.onrender.com) • [Documentation](#-documentation) • [Getting Started](#-quick-start)
+[Live Demo](https://mlmodels-lab.onrender.com) • [Documentation](#-documentation) • [Getting Started](#-quick-start)
 
 </div>
 
@@ -109,8 +109,8 @@ Each scenario links to detailed blog posts explaining the underlying algorithms:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Novaz-Edd/machine-learning-model-lab.git
-   cd machine-learning-model-lab
+   git clone https://github.com/Novaz-Edd/mlmodels-lab.git
+   cd mlmodels-lab
    ```
 
 2. **Create virtual environment**
@@ -162,7 +162,7 @@ http://localhost:8000
 ## 📁 Project Structure
 
 ```
-machine-learning-model-lab/
+mlmodels-lab/
 ├── 📂 backend/
 │   ├── 📂 api/
 │   │   ├── main.py              # FastAPI application entry
@@ -197,7 +197,7 @@ machine-learning-model-lab/
 
 ### Base URL
 - **Local:** `http://localhost:8000`
-- **Production:** `https://machine-learning-model-lab.onrender.com`
+- **Production:** `https://mlmodels-lab.onrender.com`
 
 ### Endpoints
 
@@ -214,7 +214,7 @@ machine-learning-model-lab/
 ### Example Request
 
 ```bash
-curl -X POST "https://machine-learning-model-lab.onrender.com/predict/crypto" \
+curl -X POST "https://mlmodels-lab.onrender.com/predict/crypto" \
   -H "Content-Type: application/json" \
   -d '{"open": 65000, "close": 65500, "volume": 1000000, "rsi": 55}'
 ```

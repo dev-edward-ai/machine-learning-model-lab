@@ -1,0 +1,105 @@
+/* Enhanced Scenario Styling */
+.scenarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.scenario-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(26, 26, 46, 0.9) !important;
+    border: 1px solid rgba(139, 92, 246, 0.4) !important;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    color: #ffffff !important;
+}
+
+.scenario-item:hover {
+    transform: translateY(-2px);
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+}
+
+.scenario-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.scenario-content h4 {
+    color: #ffffff !important;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.scenario-content p {
+    color: #e2e8f0 !important;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.scenario-tag {
+    display: inline-block;
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6 !important;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.scenario-item.loading {
+    justify-content: center;
+    align-items: center;
+    min-height: 120px;
+    color: #ffffff !important;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid #8b5cf6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Better text contrast */
+.text-primary, h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+.text-secondary, p {
+    color: #e2e8f0 !important;
+}
+
+.text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Improve upload section visibility */
+.upload-section h2 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.upload-section p {
+    color: #e2e8f0 !important;
+}
+
+.sample-scenarios h3 {
+    color: #ffffff !important;
+    margin-bottom: 1.5rem;
+}

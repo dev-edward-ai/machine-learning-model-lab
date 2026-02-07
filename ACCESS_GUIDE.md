@@ -47,7 +47,7 @@ http://localhost:8000/redoc
 **To start:**
 ```bash
 # Make sure you're in the main folder
-cd c:\Users\User\OneDrive\Desktop\ml_tesing\machine-learning-model-lab
+cd c:\Users\User\OneDrive\Desktop\mlmodels-lab\machine-learning-model-lab
 
 # Stop current servers (Ctrl+C in both terminals)
 # Then run:

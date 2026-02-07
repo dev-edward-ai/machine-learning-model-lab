@@ -1,11 +1,8 @@
 """
-Smart Dispatcher System
+Smart Dispatcher System v2.0
 
-Automatically tests uploaded CSV against multiple models and returns:
-- Performance metrics for top models
-- Best scenario match
-- Confidence scores
-- Real-world recommendations
+Enhanced with ScenarioFingerprinting Engine to enforce domain logic over raw metrics.
+Prevents lazy KNN selection through intelligent scenario detection and heuristic scoring.
 """
 
 from typing import Dict, Any, List, Tuple, Optional
@@ -23,6 +20,7 @@ from .auto_model import (
 )
 from .model_explanations import get_model_explanation
 from .model_cache import get_model_cache
+from .scenario_fingerprinting import ScenarioFingerprinting, HeuristicScorer
 
 
 # Real-world scenario definitions
@@ -192,13 +190,176 @@ def detect_scenario(df: pd.DataFrame, target_col: Optional[str] = None) -> Tuple
     return best_match, best_score
 
 
-def smart_dispatch(
-    df: pd.DataFrame,
-    target_col: Optional[str] = None,
-    business_objective: Optional[str] = None
-) -> Dict[str, Any]:
+
+
+
+def generate_ui_config(scenario_info: Dict, recommended_model: Dict, 
+                      df: pd.DataFrame, target_col: Optional[str]) -> Dict[str, Any]:
+    """Generate configuration for interactive UI components based on scenario."""
+    
+    ui_component = scenario_info.get("ui_component", "GeneralResults")
+    
+    base_config = {
+        "component_type": ui_component,
+        "title": f"Interactive {scenario_info.get('scenario_name', 'Analysis')}",
+        "features": list(df.columns),
+        "target": target_col,
+        "sample_data": df.head(3).to_dict('records')
+    }
+    
+    # Component-specific configurations
+    if ui_component == "LoanOfficerDashboard":
+        return {
+            **base_config,
+            "input_fields": [
+                {"name": "income", "type": "number", "label": "Annual Income ($)", "min": 0, "max": 200000},
+                {"name": "credit_score", "type": "number", "label": "Credit Score", "min": 300, "max": 850},
+                {"name": "debt_to_income", "type": "number", "label": "Debt-to-Income Ratio", "min": 0, "max": 1, "step": 0.01},
+                {"name": "employment_years", "type": "number", "label": "Years Employed", "min": 0, "max": 50}
+            ],
+            "prediction_endpoint": "/predict/decision-tree-live",
+            "result_format": "approval_status"
+        }
+        
+    elif ui_component == "TradingTerminal":
+        return {
+            **base_config,
+            "chart_config": {
+                "type": "candlestick",
+                "indicators": ["rsi", "macd", "moving_average"],
+                "timeframe": "1H"
+            },
+            "signal_display": {
+                "buy_color": "#10B981",
+                "sell_color": "#EF4444", 
+                "neutral_color": "#6B7280"
+            },
+            "live_updates": True
+        }
+        
+    elif ui_component == "ClusteringVisualization":
+        return {
+            **base_config,
+            "plot_config": {
+                "type": "scatter2d",
+                "x_axis": df.columns[0],
+                "y_axis": df.columns[1] if len(df.columns) > 1 else df.columns[0],
+                "color_by": "cluster",
+                "interactive": True
+            },
+            "cluster_info": {
+                "n_clusters": len(set(recommended_model.get("cluster_assignments", [0]))),
+                "cluster_centers": "calculated"
+            }
+        }
+        
+    elif ui_component == "PricingCalculator":
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        input_fields = []
+        for col in numeric_cols[:5]:  # Limit to 5 most important features
+            if col != target_col:
+                input_fields.append({
+                    "name": col,
+                    "type": "number", 
+                    "label": col.replace('_', ' ').title(),
+                    "min": float(df[col].min()),
+                    "max": float(df[col].max())
+                })
+        
+        return {
+            **base_config,
+            "input_fields": input_fields,
+            "prediction_format": "currency",
+            "confidence_interval": True
+        }
+    
+    # Default general configuration
+    return {
+        **base_config,
+        "component_type": "GeneralResults",
+        "show_metrics": True,
+        "show_feature_importance": True
+    }
+
+
+def analyze_dataset_characteristics(df: pd.DataFrame, target_col: Optional[str]) -> Dict[str, Any]:
+    """Analyze dataset for the 'Data DNA' left panel."""
+    
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    categorical_cols = df.select_dtypes(include=['object', 'category']).columns
+    
+    characteristics = {
+        "dimensions": {
+            "rows": len(df),
+            "columns": len(df.columns),
+            "features": len(df.columns) - (1 if target_col else 0)
+        },
+        
+        "data_types": {
+            "numeric": len(numeric_cols),
+            "categorical": len(categorical_cols),
+            "missing_values": df.isnull().sum().sum()
+        },
+        
+        "data_quality": {
+            "completeness": round((1 - df.isnull().sum().sum() / (len(df) * len(df.columns))) * 100, 1),
+            "duplicates": df.duplicated().sum(),
+            "unique_ratio": round(df.nunique().mean() / len(df) * 100, 1)
+        },
+        
+        "target_analysis": {}
+    }
+    
+    if target_col and target_col in df.columns:
+        target_series = df[target_col]
+        characteristics["target_analysis"] = {
+            "type": "binary" if target_series.nunique() == 2 else "continuous" if target_series.dtype in ['float64', 'int64'] else "categorical",
+            "unique_values": target_series.nunique(),
+            "distribution": target_series.value_counts().head().to_dict()
+        }
+    
+    return characteristics
+
+
+def generate_model_insights(recommended_model: Dict, scenario_info: Dict) -> Dict[str, Any]:
+    """Generate insights for the right panel."""
+    
+    return {
+        "model_choice": {
+            "name": recommended_model["name"],
+            "confidence": recommended_model["score"],
+            "reasoning": f"Selected for {scenario_info.get('scenario_name', 'analysis')} based on domain expertise and performance."
+        },
+        
+        "business_impact": {
+            "accuracy_meaning": f"{recommended_model['score']:.1f}% accuracy means reliable predictions for business decisions.",
+            "use_cases": [
+                "Real-time decision support",
+                "Automated processing",
+                "Risk assessment",
+                "Performance optimization"
+            ]
+        },
+        
+        "technical_details": {
+            "algorithm_family": recommended_model.get("model_type", "supervised"),
+            "interpretability": "High" if "Tree" in recommended_model["name"] else "Medium",
+            "scalability": "Good",
+            "training_time": "Fast"
+        }
+    }
+
+
+def generate_session_id() -> str:
+    """Generate unique session ID for tracking."""
+    import uuid
+    return str(uuid.uuid4())[:8]
+
+
+def smart_dispatch(df, target_col=None, business_objective=None):
     """
-    Smart Dispatcher - Tests models and returns comprehensive analysis.
+    Enhanced smart dispatch with scenario detection and confidence scoring.
     
     Returns:
         {
@@ -355,8 +516,9 @@ def smart_dispatch(
         if scenario_id in SCENARIOS and SCENARIOS[scenario_id].get("task") == task_type:
             scenario_model_type = SCENARIOS[scenario_id].get("model_type")
         idx = _find_scenario_model_index(results, scenario_model_type) if scenario_model_type else None
-        if idx is not None and idx > 0:
+        if idx is not None and int(idx) > 0:
             # Move scenario model to front; keep order of rest
+            idx = int(idx)
             chosen = results[idx]
             results = [chosen] + [r for i, r in enumerate(results) if i != idx]
         

@@ -1,102 +1,886 @@
 // ===================================
-
-// AutoML Intelligence Platform
-
-// Premium Frontend with Animations
-
+// AutoML Intelligence Platform v2.0
+// Professional Application with Interactive Microsites
 // ===================================
-
-
 
 const API_BASE_URL = 'http://localhost:8000';
 
-
-
+// ===================================
+// Application State Management
 // ===================================
 
-// Particle System
+class AppState {
+    constructor() {
+        this.currentAnalysis = null;
+        this.currentMicrosite = null;
+        this.isAnalyzing = false;
+    }
+    
+    setAnalysis(analysisResult) {
+        this.currentAnalysis = analysisResult;
+    }
+    
+    setMicrosite(microsite) {
+        this.currentMicrosite = microsite;
+    }
+    
+    reset() {
+        this.currentAnalysis = null;
+        this.currentMicrosite = null;
+        this.isAnalyzing = false;
+    }
+}
+
+const appState = new AppState();
 
 // ===================================
-
-
+// Particle System (Enhanced)
+// ===================================
 
 class ParticleSystem {
-
     constructor(canvas) {
-
         this.canvas = canvas;
-
         this.ctx = canvas.getContext('2d');
-
         this.particles = [];
-
         this.mouseX = 0;
-
         this.mouseY = 0;
-
-
+        this.animationId = null;
 
         this.resize();
-
         this.init();
-
         this.animate();
 
-
-
         window.addEventListener('resize', () => this.resize());
-
         document.addEventListener('mousemove', (e) => {
-
             this.mouseX = e.clientX;
-
             this.mouseY = e.clientY;
-
         });
-
     }
-
-
 
     resize() {
-
         this.canvas.width = window.innerWidth;
-
         this.canvas.height = document.documentElement.scrollHeight;
-
     }
-
-
 
     init() {
-
-        const particleCount = Math.min(150, Math.floor((this.canvas.width * this.canvas.height) / 15000));
-
+        this.particles = []; // Clear existing particles
+        const particleCount = Math.min(120, Math.floor((this.canvas.width * this.canvas.height) / 20000));
+        
         for (let i = 0; i < particleCount; i++) {
-
             this.particles.push({
-
                 x: Math.random() * this.canvas.width,
-
                 y: Math.random() * this.canvas.height,
-
-                vx: (Math.random() - 0.5) * 0.5,
-
-                vy: (Math.random() - 0.5) * 0.5,
-
-                radius: Math.random() * 2 + 1,
-
-                opacity: Math.random() * 0.5 + 0.2
-
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                radius: Math.random() * 2 + 0.5,
+                opacity: Math.random() * 0.6 + 0.2,
+                hue: 260 + Math.random() * 40 // Purple-blue range
             });
-
         }
-
     }
 
-
-
     animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.particles.forEach((particle, i) => {
+            // Update position
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+
+            // Mouse interaction
+            const dx = this.mouseX - particle.x;
+            const dy = this.mouseY - particle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 120) {
+                const force = (120 - distance) / 120;
+                particle.vx -= (dx / distance) * force * 0.03;
+                particle.vy -= (dy / distance) * force * 0.03;
+            }
+
+            // Boundary wrapping
+            if (particle.x < 0) particle.x = this.canvas.width;
+            if (particle.x > this.canvas.width) particle.x = 0;
+            if (particle.y < 0) particle.y = this.canvas.height;
+            if (particle.y > this.canvas.height) particle.y = 0;
+
+            // Draw particle
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`;
+            this.ctx.fill();
+
+            // Draw connections
+            this.particles.slice(i + 1).forEach(otherParticle => {
+                const dx2 = particle.x - otherParticle.x;
+                const dy2 = particle.y - otherParticle.y;
+                const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+                if (distance2 < 100) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(particle.x, particle.y);
+                    this.ctx.lineTo(otherParticle.x, otherParticle.y);
+                    this.ctx.strokeStyle = `hsla(${particle.hue}, 70%, 60%, ${0.1 * (1 - distance2 / 100)})`;
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.stroke();
+                }
+            });
+        });
+
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+    
+    destroy() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+    }
+}
+
+// ===================================
+// File Upload Manager
+// ===================================
+
+class FileUploadManager {
+    constructor() {
+        this.setupEventListeners();
+        this.loadScenarios(); // Load scenarios from backend
+    }
+    
+    async loadScenarios() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/scenarios`);
+            if (!response.ok) {
+                throw new Error('Failed to load scenarios');
+            }
+            
+            const data = await response.json();
+            this.displayScenarios(data.scenarios);
+            
+        } catch (error) {
+            console.error('Failed to load scenarios:', error);
+            this.displayFallbackScenarios();
+        }
+    }
+    
+    displayScenarios(scenarios) {
+        const container = document.getElementById('scenarios-container') || 
+                         this.createScenariosContainer();
+        
+        container.innerHTML = scenarios.map(scenario => `
+            <div class="scenario-item" data-file="${scenario.sample_file}" data-target="${scenario.target_column || ''}">
+                <span class="scenario-icon">${scenario.icon}</span>
+                <div class="scenario-content">
+                    <h4>${scenario.name}</h4>
+                    <p>${scenario.description}</p>
+                    <span class="scenario-tag">${scenario.industry}</span>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add event listeners to scenario items
+        container.querySelectorAll('.scenario-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const filename = item.dataset.file;
+                const target = item.dataset.target;
+                this.loadSampleDataset(filename, target);
+            });
+        });
+    }
+    
+    displayFallbackScenarios() {
+        const container = document.getElementById('scenarios-container') || 
+                         this.createScenariosContainer();
+        
+        container.innerHTML = `
+            <div class="scenario-item" data-file="crypto_signals.csv" data-target="buy_signal">
+                <span class="scenario-icon">💰</span>
+                <div class="scenario-content">
+                    <h4>Crypto Trading</h4>
+                    <p>Predict profitable crypto signals</p>
+                    <span class="scenario-tag">Finance</span>
+                </div>
+            </div>
+            <div class="scenario-item" data-file="loan_applications.csv" data-target="approval_status">
+                <span class="scenario-icon">🏦</span>
+                <div class="scenario-content">
+                    <h4>Loan Approval</h4>
+                    <p>Assess loan application risk</p>
+                    <span class="scenario-tag">Banking</span>
+                </div>
+            </div>
+            <div class="scenario-item" data-file="heart_disease.csv" data-target="target">
+                <span class="scenario-icon">❤️</span>
+                <div class="scenario-content">
+                    <h4>Heart Disease</h4>
+                    <p>Medical diagnosis prediction</p>
+                    <span class="scenario-tag">Healthcare</span>
+                </div>
+            </div>
+            <div class="scenario-item" data-file="clustering_customers.csv" data-target="">
+                <span class="scenario-icon">🎯</span>
+                <div class="scenario-content">
+                    <h4>Customer Clustering</h4>
+                    <p>Segment customers by behavior</p>
+                    <span class="scenario-tag">Marketing</span>
+                </div>
+            </div>
+        `;
+        
+        // Add event listeners
+        container.querySelectorAll('.scenario-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const filename = item.dataset.file;
+                const target = item.dataset.target;
+                this.loadSampleDataset(filename, target);
+            });
+        });
+    }
+    
+    createScenariosContainer() {
+        const container = document.createElement('div');
+        container.id = 'scenarios-container';
+        container.className = 'scenarios-grid';
+        
+        // Find the sample scenarios section and append
+        const sampleSection = document.querySelector('.sample-scenarios');
+        if (sampleSection) {
+            sampleSection.appendChild(container);
+        }
+        
+        return container;
+    }
+    
+    setupEventListeners() {
+        const dropZone = document.getElementById('file-drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const sampleItems = document.querySelectorAll('.sample-item');
+        
+        // Drag and drop events
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', (e) => {
+            if (!dropZone.contains(e.relatedTarget)) {
+                dropZone.classList.remove('drag-over');
+            }
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleFile(files[0]);
+            }
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFile(e.target.files[0]);
+            }
+        });
+        
+        // Sample dataset clicks
+        sampleItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const filename = item.dataset.file;
+                const target = item.dataset.target;
+                this.loadSampleDataset(filename, target);
+            });
+        });
+    }
+    
+    async handleFile(file) {
+        if (!this.validateFile(file)) {
+            return;
+        }
+        
+        const targetColumn = document.getElementById('target-col-input').value.trim() || null;
+        await this.uploadAndAnalyze(file, targetColumn);
+    }
+    
+    validateFile(file) {
+        // File type validation
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            showError('Please upload a CSV file.');
+            return false;
+        }
+        
+        // File size validation (50MB limit)
+        if (file.size > 50 * 1024 * 1024) {
+            showError('File too large. Maximum size is 50MB.');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    async uploadAndAnalyze(file, targetColumn) {
+        if (appState.isAnalyzing) {
+            return; // Prevent multiple simultaneous uploads
+        }
+        
+        appState.isAnalyzing = true;
+        
+        try {
+            showLoading('Analyzing your dataset...');
+            updateLoadingProgress(10, 'Reading CSV file...');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            if (targetColumn) {
+                formData.append('target_col', targetColumn);
+            }
+            
+            updateLoadingProgress(30, 'Detecting scenario patterns...');
+            
+            const response = await fetch(`${API_BASE_URL}/smart-dispatch`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            updateLoadingProgress(60, 'Running model tournament...');
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Analysis failed');
+            }
+            
+            const analysisResult = await response.json();
+            
+            updateLoadingProgress(90, 'Generating interactive interface...');
+            
+            // Store analysis result
+            appState.setAnalysis(analysisResult);
+            
+            updateLoadingProgress(100, 'Complete!');
+            
+            // Small delay for smooth transition
+            setTimeout(() => {
+                hideLoading();
+                this.showAnalysisResult(analysisResult);
+            }, 500);
+            
+        } catch (error) {
+            console.error('Analysis failed:', error);
+            hideLoading();
+            showError(`Analysis failed: ${error.message}`);
+        } finally {
+            appState.isAnalyzing = false;
+        }
+    }
+    
+    async loadSampleDataset(filename, targetColumn) {
+        try {
+            // Set target column input
+            const targetInput = document.getElementById('target-col-input');
+            targetInput.value = targetColumn || '';
+            
+            // Fetch sample file
+            const response = await fetch(`samples/${filename}`);
+            if (!response.ok) {
+                throw new Error('Sample file not found');
+            }
+            
+            const csvBlob = await response.blob();
+            const file = new File([csvBlob], filename, { type: 'text/csv' });
+            
+            await this.uploadAndAnalyze(file, targetColumn);
+            
+        } catch (error) {
+            console.error('Failed to load sample dataset:', error);
+            showError(`Failed to load sample dataset: ${error.message}`);
+        }
+    }
+    
+    showAnalysisResult(analysisResult) {
+        // Hide upload section
+        const uploadSection = document.getElementById('upload-section');
+        const analysisSection = document.getElementById('analysis-dashboard');
+        
+        uploadSection.classList.add('hidden');
+        analysisSection.classList.remove('hidden');
+        
+        // Populate Data DNA panel
+        this.populateDataDNA(analysisResult.dataset_analysis);
+        
+        // Create and render interactive microsite
+        const microsite = ResultViewFactory.createComponent(analysisResult);
+        appState.setMicrosite(microsite);
+        microsite.render('microsite-container');
+        
+        // Populate Model Insights panel
+        this.populateModelInsights(analysisResult.model_insights);
+        
+        // Show success message
+        showSuccess(`Analysis complete! Interactive ${analysisResult.scenario.name} tool ready.`);
+    }
+    
+    populateDataDNA(datasetAnalysis) {
+        const container = document.getElementById('data-dna-content');
+        const data = datasetAnalysis;
+        
+        container.innerHTML = `
+            <div class="dna-section">
+                <h4>Dataset Overview</h4>
+                <div class="dna-metrics">
+                    <div class="dna-metric">
+                        <span class="metric-label">Rows</span>
+                        <span class="metric-value">${data.dimensions.rows.toLocaleString()}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Columns</span>
+                        <span class="metric-value">${data.dimensions.columns}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Features</span>
+                        <span class="metric-value">${data.dimensions.features}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dna-section">
+                <h4>Data Types</h4>
+                <div class="dna-metrics">
+                    <div class="dna-metric">
+                        <span class="metric-label">Numeric</span>
+                        <span class="metric-value">${data.data_types.numeric}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Categorical</span>
+                        <span class="metric-value">${data.data_types.categorical}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Missing</span>
+                        <span class="metric-value">${data.data_types.missing_values}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dna-section">
+                <h4>Data Quality</h4>
+                <div class="quality-score">
+                    <div class="score-circle" style="--score: ${data.data_quality.completeness}">
+                        <span class="score-text">${data.data_quality.completeness}%</span>
+                    </div>
+                    <span class="score-label">Completeness</span>
+                </div>
+                <div class="dna-metrics">
+                    <div class="dna-metric">
+                        <span class="metric-label">Duplicates</span>
+                        <span class="metric-value">${data.data_quality.duplicates}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Unique Ratio</span>
+                        <span class="metric-value">${data.data_quality.unique_ratio}%</span>
+                    </div>
+                </div>
+            </div>
+            
+            ${data.target_analysis && Object.keys(data.target_analysis).length > 0 ? `
+            <div class="dna-section">
+                <h4>Target Variable</h4>
+                <div class="dna-metrics">
+                    <div class="dna-metric">
+                        <span class="metric-label">Type</span>
+                        <span class="metric-value">${data.target_analysis.type}</span>
+                    </div>
+                    <div class="dna-metric">
+                        <span class="metric-label">Unique Values</span>
+                        <span class="metric-value">${data.target_analysis.unique_values}</span>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+        `;
+    }
+    
+    populateModelInsights(modelInsights) {
+        const container = document.getElementById('model-insights-content');
+        const insights = modelInsights;
+        
+        container.innerHTML = `
+            <div class="insights-section">
+                <h4>Model Selection</h4>
+                <div class="model-choice">
+                    <div class="choice-header">
+                        <span class="model-name">${insights.model_choice.name}</span>
+                        <span class="confidence-badge">${insights.model_choice.confidence.toFixed(1)}%</span>
+                    </div>
+                    <p class="choice-reasoning">${insights.model_choice.reasoning}</p>
+                </div>
+            </div>
+            
+            <div class="insights-section">
+                <h4>Business Impact</h4>
+                <p class="impact-description">${insights.business_impact.accuracy_meaning}</p>
+                <div class="use-cases">
+                    <h5>Key Applications:</h5>
+                    <ul>
+                        ${insights.business_impact.use_cases.map(useCase => 
+                            `<li>${useCase}</li>`
+                        ).join('')}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="insights-section">
+                <h4>Technical Details</h4>
+                <div class="tech-metrics">
+                    <div class="tech-metric">
+                        <span class="tech-label">Algorithm Family</span>
+                        <span class="tech-value">${insights.technical_details.algorithm_family}</span>
+                    </div>
+                    <div class="tech-metric">
+                        <span class="tech-label">Interpretability</span>
+                        <span class="tech-value">${insights.technical_details.interpretability}</span>
+                    </div>
+                    <div class="tech-metric">
+                        <span class="tech-label">Scalability</span>
+                        <span class="tech-value">${insights.technical_details.scalability}</span>
+                    </div>
+                    <div class="tech-metric">
+                        <span class="tech-label">Training Speed</span>
+                        <span class="tech-value">${insights.technical_details.training_time}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ===================================
+// UI Feedback Functions
+// ===================================
+
+function showLoading(message) {
+    const overlay = document.getElementById('loading-overlay');
+    const messageEl = document.getElementById('loading-message');
+    const progressBar = document.getElementById('progress-bar');
+    
+    messageEl.textContent = message;
+    progressBar.style.width = '0%';
+    overlay.classList.remove('hidden');
+}
+
+function updateLoadingProgress(percentage, message) {
+    const messageEl = document.getElementById('loading-message');
+    const progressBar = document.getElementById('progress-bar');
+    
+    if (message) {
+        messageEl.textContent = message;
+    }
+    progressBar.style.width = `${percentage}%`;
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('hidden');
+}
+
+function showError(message) {
+    const toast = document.getElementById('error-toast');
+    const messageEl = document.getElementById('error-message');
+    
+    messageEl.textContent = message;
+    toast.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        hideError();
+    }, 5000);
+}
+
+function hideError() {
+    const toast = document.getElementById('error-toast');
+    toast.classList.add('hidden');
+}
+
+function showSuccess(message) {
+    const toast = document.getElementById('success-toast');
+    const messageEl = document.getElementById('success-message');
+    
+    messageEl.textContent = message;
+    toast.classList.remove('hidden');
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        hideSuccess();
+    }, 3000);
+}
+
+function hideSuccess() {
+    const toast = document.getElementById('success-toast');
+    toast.classList.add('hidden');
+}
+
+// ===================================
+// Application Initialization
+// ===================================
+
+class Application {
+    constructor() {
+        this.particleSystem = null;
+        this.fileUploadManager = null;
+    }
+    
+    init() {
+        // Initialize particle system
+        const canvas = document.getElementById('particleCanvas');
+        if (canvas) {
+            this.particleSystem = new ParticleSystem(canvas);
+        }
+        
+        // Initialize file upload manager
+        this.fileUploadManager = new FileUploadManager();
+        
+        // Add global styles for microsites
+        this.addMicrositeStyles();
+        
+        console.log('🤖 AutoML Intelligence Platform v2.0 initialized');
+    }
+    
+    addMicrositeStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Data DNA Panel Styles */
+            .dna-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--glass-border);
+            }
+            
+            .dna-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .dna-section h4 {
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 1rem;
+            }
+            
+            .dna-metrics {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .dna-metric {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0;
+            }
+            
+            .metric-label {
+                color: var(--text-muted);
+                font-size: 0.875rem;
+            }
+            
+            .metric-value {
+                color: var(--text-primary);
+                font-weight: 600;
+                font-family: var(--font-mono);
+            }
+            
+            .quality-score {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 1rem;
+            }
+            
+            .score-circle {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: conic-gradient(
+                    var(--accent-purple) 0deg,
+                    var(--accent-purple) calc(var(--score) * 3.6deg),
+                    var(--bg-tertiary) calc(var(--score) * 3.6deg),
+                    var(--bg-tertiary) 360deg
+                );
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                margin-bottom: 0.5rem;
+            }
+            
+            .score-circle::before {
+                content: '';
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: var(--bg-secondary);
+                position: absolute;
+            }
+            
+            .score-text {
+                position: relative;
+                z-index: 1;
+                font-weight: 700;
+                color: var(--text-primary);
+            }
+            
+            .score-label {
+                color: var(--text-muted);
+                font-size: 0.875rem;
+            }
+            
+            /* Model Insights Panel Styles */
+            .insights-section {
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--glass-border);
+            }
+            
+            .insights-section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .insights-section h4 {
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 1rem;
+            }
+            
+            .model-choice {
+                background: rgba(139, 92, 246, 0.1);
+                border: 1px solid rgba(139, 92, 246, 0.2);
+                border-radius: 0.75rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .choice-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .model-name {
+                font-weight: 600;
+                color: var(--accent-purple);
+            }
+            
+            .confidence-badge {
+                background: var(--accent-purple);
+                color: white;
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.375rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .choice-reasoning {
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+                line-height: 1.5;
+            }
+            
+            .impact-description {
+                color: var(--text-secondary);
+                line-height: 1.6;
+                margin-bottom: 1rem;
+            }
+            
+            .use-cases h5 {
+                color: var(--text-primary);
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+            
+            .use-cases ul {
+                list-style: none;
+                padding: 0;
+            }
+            
+            .use-cases li {
+                color: var(--text-muted);
+                font-size: 0.875rem;
+                padding: 0.25rem 0;
+                position: relative;
+                padding-left: 1rem;
+            }
+            
+            .use-cases li::before {
+                content: '▸';
+                color: var(--accent-purple);
+                position: absolute;
+                left: 0;
+            }
+            
+            .tech-metrics {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .tech-metric {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0;
+            }
+            
+            .tech-label {
+                color: var(--text-muted);
+                font-size: 0.875rem;
+            }
+            
+            .tech-value {
+                color: var(--text-primary);
+                font-weight: 600;
+                font-size: 0.875rem;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    destroy() {
+        if (this.particleSystem) {
+            this.particleSystem.destroy();
+        }
+    }
+}
+
+// ===================================
+// Application Bootstrap
+// ===================================
+
+let app;
+
+document.addEventListener('DOMContentLoaded', () => {
+    app = new Application();
+    app.init();
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (app) {
+        app.destroy();
+    }
+});
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
