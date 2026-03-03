@@ -1,32 +1,13 @@
+# Single-container setup: FastAPI serves both API and static frontend
 services:
-  backend:
+  app:
     build:
       context: .
-      dockerfile: ./backend/Dockerfile
-    container_name: ml-backend
+      dockerfile: Dockerfile
+    container_name: insightai
     ports:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-    volumes:
-      - ./backend:/app/backend
+      - PORT=8000
     restart: unless-stopped
-    networks:
-      - ml-network
-
-  frontend:
-    build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
-    container_name: ml-frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
-    networks:
-      - ml-network
-
-networks:
-  ml-network:
-    driver: bridge

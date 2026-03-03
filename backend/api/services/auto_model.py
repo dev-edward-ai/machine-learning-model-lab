@@ -112,6 +112,55 @@ def recommend_and_run_best_model(
             "model_explanation": explanation,
         }
 
+    if task_type == "text_classification":
+        # Delegate to the dedicated TF-IDF + MultinomialNB trainer.
+        from .scenario_trainers import train_sms_spam_detector
+        result = train_sms_spam_detector(df)
+        explanation = get_model_explanation(result["model_name"], task_type)
+        summary = {
+            "headline": f"Text classifier trained. Accuracy: {result['metrics']['accuracy']}%.",
+            "details": result["metrics"],
+            "recommended_action": "Use the model to classify incoming text messages in real time.",
+            "detailed_insight": result["explained"],
+        }
+        return {
+            "recommended_model_name": result["model_name"],
+            "reasoning": (
+                f"TF-IDF + Multinomial Naive Bayes is the canonical pipeline for text "
+                f"classification. Achieved {result['metrics']['accuracy']}% accuracy."
+            ),
+            "model_object": result["model"],
+            "task_type": task_type,
+            "metric_value": result["metrics"]["primary_score"],
+            "business_summary": summary,
+            "model_explanation": explanation,
+        }
+
+    if task_type == "dimensionality_reduction":
+        # Delegate to the dedicated PCA trainer.
+        from .scenario_trainers import train_stock_pca_visualizer
+        result = train_stock_pca_visualizer(df)
+        explanation = get_model_explanation(result["model_name"], task_type)
+        total_evr = result["metrics"]["total_explained_variance"]
+        summary = {
+            "headline": f"PCA retained {total_evr}% of total variance in 2 components.",
+            "details": result["metrics"],
+            "recommended_action": "Use scatter_data from the response for 2D cluster visualisation.",
+            "detailed_insight": result["explained"],
+        }
+        return {
+            "recommended_model_name": result["model_name"],
+            "reasoning": (
+                f"PCA is the standard approach for high-dimensional visualisation. "
+                f"2 components explain {total_evr}% of variance."
+            ),
+            "model_object": result["model"],
+            "task_type": task_type,
+            "metric_value": total_evr,
+            "business_summary": summary,
+            "model_explanation": explanation,
+        }
+
     # Supervised learning path
     X = df.drop(columns=[target_col])
     y = df[target_col]
@@ -240,18 +289,49 @@ def detect_task_type(
     target_col: Optional[str],
     business_objective: Optional[str] = None
 ) -> str:
-    """Detect whether task is classification, regression, clustering, or anomaly detection."""
+    """
+    Detect whether the task is classification, regression, clustering,
+    anomaly detection, text_classification, or dimensionality_reduction.
+
+    Priority order
+    --------------
+    1. Explicit business_objective keyword override
+    2. Unsupervised cues (no target, or explicit 'pca'/'reduce' intent)
+    3. Text-column detection → text_classification
+    4. Target variable dtype / cardinality heuristic
+    """
     objective = (business_objective or "").lower()
-    
-    if "anomaly" in objective or "fraud" in objective or "outlier" in objective:
+
+    # ── explicit override by intent keyword ───────────────────────────────
+    if any(kw in objective for kw in ("anomaly", "fraud", "outlier")):
         return "anomaly"
-    if "segment" in objective or "cluster" in objective:
+    if any(kw in objective for kw in ("segment", "cluster")):
         return "clustering"
+    if any(kw in objective for kw in ("pca", "reduce", "dimensionality", "visuali")):
+        return "dimensionality_reduction"
+    if any(kw in objective for kw in ("spam", "text classif", "nlp", "sentiment")):
+        return "text_classification"
+
+    # ── no target → unsupervised ──────────────────────────────────────────
     if target_col is None:
         return "clustering"
+
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
-    
+
+    # ── text column heuristic ─────────────────────────────────────────────
+    # If the non-target columns contain a free-text column (high avg token count),
+    # treat as text classification regardless of target type.
+    text_like_cols = [
+        c for c in df.columns
+        if c != target_col
+        and df[c].dtype == object
+        and df[c].dropna().astype(str).str.split().str.len().mean() > 3
+    ]
+    if text_like_cols:
+        return "text_classification"
+
+    # ── target variable heuristic ─────────────────────────────────────────
     series = df[target_col]
     if pd.api.types.is_numeric_dtype(series):
         return "regression" if series.nunique() > 20 or "revenue" in objective else "classification"

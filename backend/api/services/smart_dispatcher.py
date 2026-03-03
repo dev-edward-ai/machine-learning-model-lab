@@ -21,6 +21,7 @@ from .auto_model import (
 from .model_explanations import get_model_explanation
 from .model_cache import get_model_cache
 from .scenario_fingerprinting import ScenarioFingerprinting, HeuristicScorer
+from .scenario_trainers import DEDICATED_TRAINERS  # scenario-specific trainer registry
 
 
 # Real-world scenario definitions
@@ -141,6 +142,69 @@ SCENARIOS = {
         "icon": "🔍",
         "keywords": ["transaction", "amount", "fraud", "merchant", "distance", "online"],
         "industry": "Banking/Security"
+    },
+
+    # ── 6 new production scenarios (each has a dedicated trainer) ─────────
+    "regression_housing": {
+        "name": "House Price Estimator",
+        "description": "Linear price prediction from structural and location features",
+        "model_type": "Linear Regression",
+        "task": "regression",
+        "icon": "🏡",
+        "keywords": ["square_footage", "bedrooms", "bathrooms", "location_score", "house_age", "sqft", "price"],
+        "industry": "Real Estate",
+        "dedicated_trainer": "regression_housing"
+    },
+    "customer_segments": {
+        "name": "Customer Segmentation",
+        "description": "Auto-k K-Means segmentation with silhouette optimisation",
+        "model_type": "KMeans",
+        "task": "clustering",
+        "icon": "👥",
+        "keywords": ["annual_income", "spending_score", "purchase_frequency", "customer", "segment", "clv"],
+        "industry": "Retail/E-commerce",
+        "dedicated_trainer": "customer_segments"
+    },
+    # Existing scenarios enhanced with dedicated trainers
+    "banknote_authentication": {
+        "name": "Fake Banknote Detector",
+        "description": "Precision boundary classification for counterfeit detection",
+        "model_type": "SVM Classifier",
+        "task": "classification",
+        "icon": "💵",
+        "keywords": ["variance", "skewness", "curtosis", "entropy", "authentic"],
+        "industry": "Security/Banking",
+        "dedicated_trainer": "banknote_authentication"
+    },
+    "customer_churn_v2": {
+        "name": "Customer Churn Predictor",
+        "description": "XGBoost churn prediction with class-imbalance handling",
+        "model_type": "XGBoost Classifier",
+        "task": "classification",
+        "icon": "📊",
+        "keywords": ["tenure", "monthly_charges", "contract_type", "support_tickets", "payment_method"],
+        "industry": "SaaS/Subscription",
+        "dedicated_trainer": "customer_churn"
+    },
+    "sms_spam_v2": {
+        "name": "SMS Spam Detector",
+        "description": "TF-IDF pipeline + Multinomial Naive Bayes text classifier",
+        "model_type": "Multinomial Naive Bayes",
+        "task": "text_classification",
+        "icon": "📱",
+        "keywords": ["message", "text", "sms", "spam", "ham", "label", "content"],
+        "industry": "Communications",
+        "dedicated_trainer": "sms_spam"
+    },
+    "stock_sectors_v2": {
+        "name": "Stock Market Visualizer",
+        "description": "PCA 2-component projection for sector cluster visualisation",
+        "model_type": "PCA",
+        "task": "dimensionality_reduction",
+        "icon": "📉",
+        "keywords": ["stock", "sector", "tech_score", "market", "beta", "volatility", "ticker"],
+        "industry": "Finance/Investment",
+        "dedicated_trainer": "stock_sectors"
     }
 }
 
@@ -380,7 +444,92 @@ def smart_dispatch(df, target_col=None, business_objective=None):
         "task": "unknown",
         "industry": "General"
     })
-    
+
+    # ── Dedicated-trainer fast path ───────────────────────────────────────
+    # When a known scenario is detected with sufficient confidence AND a
+    # specialised trainer exists, bypass the generic tournament entirely.
+    # This enforces domain-correct model selection (e.g. TF-IDF+NB for SMS,
+    # PCA for stocks) rather than letting the tournament pick generically.
+    dedicated_trainer_key = scenario.get("dedicated_trainer")
+    if dedicated_trainer_key and dedicated_trainer_key in DEDICATED_TRAINERS and scenario_confidence >= 0.3:
+        try:
+            trainer_fn = DEDICATED_TRAINERS[dedicated_trainer_key]
+            trainer_result = trainer_fn(df)
+
+            t_task = trainer_result["task_type"]
+            t_model_name = trainer_result["model_name"]
+            t_metrics = trainer_result["metrics"]
+            primary_score = t_metrics.get("primary_score", 0.0)
+            score_label = t_metrics.get("score_label", "Score")
+
+            # Reuse model_cache for live-prediction endpoints
+            cache = get_model_cache()
+            feature_names = trainer_result.get("feature_cols", [])
+            session_id = cache.store_model(
+                model=trainer_result["model"],
+                preprocessor=trainer_result.get("scaler"),
+                scenario_id=scenario_id,
+                scenario_data={
+                    "id": scenario_id,
+                    "name": scenario.get("name", "Unknown"),
+                    "description": scenario.get("description", ""),
+                    "icon": scenario.get("icon", "🤖"),
+                    "industry": scenario.get("industry", "General"),
+                },
+                feature_info={"feature_names": feature_names, "num_features": len(feature_names)},
+                task_type=t_task,
+                model_name=t_model_name,
+            )
+
+            recommended_model = {
+                "name": t_model_name,
+                "score": primary_score,
+                "score_type": score_label,
+                "model_type": t_task,
+                "explanation": get_model_explanation(t_model_name, t_task),
+                "scenario_recommended": True,
+                "scenario_name": scenario.get("name", ""),
+                "dedicated_trainer": True,
+            }
+
+            dataset_summary = {
+                "num_rows": len(df),
+                "num_cols": len(df.columns),
+                "num_numeric": len(df.select_dtypes(include=[np.number]).columns),
+                "num_categorical": len(df.select_dtypes(exclude=[np.number]).columns),
+                "missing_values": int(df.isnull().sum().sum()),
+                "memory_usage_mb": round(df.memory_usage(deep=True).sum() / (1024 * 1024), 2),
+            }
+
+            return {
+                "scenario": {
+                    "id": scenario_id,
+                    "name": scenario.get("name", "Unknown"),
+                    "description": scenario.get("description", ""),
+                    "icon": scenario.get("icon", "🤖"),
+                    "industry": scenario.get("industry", "General"),
+                    "confidence": round(scenario_confidence * 100, 1),
+                },
+                "top_models": [recommended_model],
+                "recommended_model": recommended_model,
+                "dataset_summary": dataset_summary,
+                "task_type": t_task,
+                "overall_confidence": round(scenario_confidence * 100, 1),
+                "session_id": session_id,
+                "feature_info": {"feature_names": feature_names, "num_features": len(feature_names)},
+                # Extra per-trainer payloads passed through transparently
+                "trainer_extras": {
+                    k: v
+                    for k, v in trainer_result.items()
+                    if k not in ("model", "scaler", "pca", "preprocessor")
+                },
+            }
+        except Exception as dedicated_err:
+            # Degrade gracefully to generic tournament if trainer fails
+            print(f"[dispatcher] Dedicated trainer '{dedicated_trainer_key}' failed: {dedicated_err}. "
+                  "Falling back to generic tournament.")
+
+    # ── Generic tournament path (unchanged) ───────────────────────────────
     # Detect task type
     task_type = detect_task_type(df, target_col, business_objective)
     
@@ -410,7 +559,7 @@ def smart_dispatch(df, target_col=None, business_objective=None):
             "model_type": "clustering",
             "explanation": get_model_explanation(best_name, task_type)
         }]
-        
+
     elif task_type == "anomaly":
         best_name, best_model, best_score, _ = run_anomaly_tournament(df)
         winning_model = best_model
@@ -421,6 +570,37 @@ def smart_dispatch(df, target_col=None, business_objective=None):
             "score_type": "Normal Data %",
             "model_type": "anomaly_detection",
             "explanation": get_model_explanation(best_name, task_type)
+        }]
+
+    elif task_type == "text_classification":
+        # Fallback: route through the SMS/text dedicated trainer (handles both
+        # raw-text and feature-engineered CSV formats).
+        from .scenario_trainers import train_sms_spam_detector
+        result = train_sms_spam_detector(df)
+        winning_model = result["model"]
+        feature_names = [result.get("text_col") or "text"]
+        top_models = [{
+            "name": result["model_name"],
+            "score": result["metrics"]["primary_score"],
+            "score_type": result["metrics"]["score_label"],
+            "model_type": "text_classification",
+            "explanation": get_model_explanation(result["model_name"], task_type),
+            "dedicated_trainer": True,
+        }]
+
+    elif task_type == "dimensionality_reduction":
+        # Fallback: run PCA reduction via the stock visualizer trainer.
+        from .scenario_trainers import train_stock_pca_visualizer
+        result = train_stock_pca_visualizer(df)
+        winning_model = result["model"]
+        feature_names = result["feature_cols"]
+        top_models = [{
+            "name": result["model_name"],
+            "score": result["metrics"]["primary_score"],
+            "score_type": result["metrics"]["score_label"],
+            "model_type": "dimensionality_reduction",
+            "explanation": get_model_explanation(result["model_name"], task_type),
+            "dedicated_trainer": True,
         }]
         
     else:

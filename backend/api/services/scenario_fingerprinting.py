@@ -113,6 +113,79 @@ class ScenarioFingerprinting:
                 },
                 "confidence_boost": 0.15,
                 "ui_component": "PricingCalculator"
+            },
+
+            # ── 6 new production scenarios ────────────────────────────────────
+
+            "regression_housing": {
+                "column_patterns": [
+                    r"(square_footage|sqft|area|floor)",
+                    r"(bedrooms?|beds?|bathrooms?|baths?)",
+                    r"(house_age|year_built|location_score|neighborhood)"
+                ],
+                "preferred_models": ["Linear Regression"],
+                "data_characteristics": {
+                    "target_type": "continuous",
+                    "feature_types": ["numeric"],
+                    "domain_indicators": ["real_estate", "housing", "property"]
+                },
+                # Strong preference: linear regression is domain-standard for
+                # interpretable house pricing; avoids overkill ensemble usage.
+                "confidence_boost": 0.25,
+                "ui_component": "HousePricingCalculator"
+            },
+
+            "banknote_authentication": {
+                "column_patterns": [
+                    r"(variance|skewness|curtosis|kurtosis)",
+                    r"(entropy|wavelet)",
+                    r"(authentic|genuine|class|fake|real)"
+                ],
+                "preferred_models": ["SVM Classifier"],
+                "data_characteristics": {
+                    "target_type": "binary",
+                    "feature_types": ["numeric"],
+                    "domain_indicators": ["security", "banking", "authentication"]
+                },
+                # SVM excels at maximum-margin boundary for compact numeric features.
+                "confidence_boost": 0.30,
+                "ui_component": "SecurityClassifier"
+            },
+
+            "customer_churn": {
+                "column_patterns": [
+                    r"(tenure|contract_type|contract)",
+                    r"(monthly_charges?|monthlycharges|support_tickets?)",
+                    r"(churn|churned|cancelled|payment_method)"
+                ],
+                "preferred_models": ["XGBoost Classifier", "Random Forest Classifier"],
+                "data_characteristics": {
+                    "target_type": "binary",
+                    "feature_types": ["numeric", "categorical"],
+                    "domain_indicators": ["saas", "subscription", "retention"]
+                },
+                # XGBoost is industry-standard for churn; handles class imbalance
+                # and mixed feature types natively.
+                "confidence_boost": 0.20,
+                "ui_component": "ChurnDashboard"
+            },
+
+            "stock_sectors": {
+                "column_patterns": [
+                    r"(ticker|symbol|stock|sector)",
+                    r"(pe_ratio|pe|beta|volatility|market_cap)",
+                    r"(revenue_growth|eps|tech_score|momentum)"
+                ],
+                "preferred_models": ["PCA"],
+                "data_characteristics": {
+                    "target_type": None,  # Unsupervised / dimensionality reduction
+                    "feature_types": ["numeric"],
+                    "domain_indicators": ["finance", "investment", "stocks"]
+                },
+                # PCA is the canonical tool for high-dimensional financial
+                # feature compression and sector cluster visualisation.
+                "confidence_boost": 0.30,
+                "ui_component": "StockPCAVisualizer"
             }
         }
     

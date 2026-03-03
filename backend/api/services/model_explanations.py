@@ -266,6 +266,16 @@ def get_model_explanation(
         explanation["task_context"] = "🎨 Clustering: Discovering natural groups in your data without predefined labels."
     elif task_type == "anomaly":
         explanation["task_context"] = "⚠️ Anomaly Detection: Identifying unusual or outlier data points."
+    elif task_type == "text_classification":
+        explanation["task_context"] = (
+            "📝 Text Classification: Predicting a label from raw text using NLP techniques. "
+            "TF-IDF converts words into weighted numeric vectors before the classifier runs."
+        )
+    elif task_type == "dimensionality_reduction":
+        explanation["task_context"] = (
+            "🗜️ Dimensionality Reduction: Compressing high-dimensional data to fewer components "
+            "while preserving the maximum amount of variance. No target label required."
+        )
     
     return explanation
 
