@@ -193,11 +193,11 @@ class FileUploadManager {
                          this.createScenariosContainer();
         
         container.innerHTML = `
-            <div class="scenario-item" data-file="crypto_signals.csv" data-target="buy_signal">
-                <span class="scenario-icon">💰</span>
+            <div class="scenario-item" data-file="stock_price_prediction.csv" data-target="price_up">
+                <span class="scenario-icon">📈</span>
                 <div class="scenario-content">
-                    <h4>Crypto Trading</h4>
-                    <p>Predict profitable crypto signals</p>
+                    <h4>Stock Market Prediction</h4>
+                    <p>Predict profitable stock price movements</p>
                     <span class="scenario-tag">Finance</span>
                 </div>
             </div>

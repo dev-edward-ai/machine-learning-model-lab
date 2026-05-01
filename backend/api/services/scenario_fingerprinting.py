@@ -19,20 +19,20 @@ class ScenarioFingerprinting:
     
     def __init__(self):
         self.scenario_fingerprints = {
-            "crypto_signals": {
+            "stock_price_prediction": {
                 "column_patterns": [
-                    r"(open|close|high|low|volume)",
-                    r"(price|rsi|macd|moving.*average)",
-                    r"(signal|buy|sell|trade)"
+                    r"(open|close|high|low|volume|price)",
+                    r"(rsi|macd|moving.*average|moving_avg)",
+                    r"(signal|price_up|price_down|direction)"
                 ],
                 "preferred_models": ["Logistic Regression", "Random Forest Classifier"],
                 "data_characteristics": {
                     "target_type": "binary",
                     "feature_types": ["numeric"],
-                    "domain_indicators": ["financial", "trading", "crypto"]
+                    "domain_indicators": ["financial", "trading", "stock", "market"]
                 },
                 "confidence_boost": 0.15,  # 15% confidence boost for correct models
-                "ui_component": "TradingTerminal"
+                "ui_component": "StockMarketTerminal"
             },
             
             "loan_applications": {

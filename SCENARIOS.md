@@ -4,14 +4,14 @@
 
 ### Classification Models (6 Scenarios)
 
-#### 1. 💰 Crypto Buy/Sell Signal
+#### 1. � Stock Market Price Predictor
 - **Model:** Logistic Regression
-- **Dataset:** `crypto_signals.csv`
+- **Dataset:** `stock_price_prediction.csv`
 - **Task:** Binary classification using technical indicators (RSI, MACD, Moving Averages)
-- **Real-World Impact:** Financial analysts use this for quick probability assessments. 85% accuracy means highly reliable trading signals.
+- **Real-World Impact:** Financial analysts use this to predict short-term price movements. 85% accuracy means reliable directional signals for trading strategies.
 - **Sample Command:**
 ```bash
-curl -X POST http://localhost:8000/smart-dispatch -F "file=@samples/crypto_signals.csv" -F "target_col=buy_signal"
+curl -X POST http://localhost:8000/smart-dispatch -F "file=@samples/stock_price_prediction.csv" -F "target_col=price_up"
 ```
 
 #### 2. 🏦 Loan Approval Assistant

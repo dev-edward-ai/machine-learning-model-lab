@@ -18,8 +18,10 @@ class ResultViewFactory {
         switch (componentType) {
             case 'LoanOfficerDashboard':
                 return new LoanOfficerDashboard(analysisResult);
+            case 'StockMarketTerminal':
+                return new StockMarketTerminal(analysisResult);
             case 'TradingTerminal':
-                return new TradingTerminal(analysisResult);
+                return new StockMarketTerminal(analysisResult);
             case 'ClusteringVisualization':
                 return new ClusteringVisualization(analysisResult);
             case 'PricingCalculator':
@@ -314,11 +316,11 @@ class LoanOfficerDashboard extends BaseMicrosite {
 }
 
 // ===================================
-// Trading Terminal
-// Interactive crypto trading interface
+// Stock Market Terminal
+// Interactive stock market price prediction interface
 // ===================================
 
-class TradingTerminal extends BaseMicrosite {
+class StockMarketTerminal extends BaseMicrosite {
     constructor(analysisResult) {
         super(analysisResult);
         this.chart = null;
@@ -330,8 +332,8 @@ class TradingTerminal extends BaseMicrosite {
         return `
             <div class="trading-terminal">
                 <div class="terminal-header">
-                    <div class="header-icon">💰</div>
-                    <h2>Crypto Trading Terminal</h2>
+                    <div class="header-icon">📈</div>
+                    <h2>Stock Market Price Prediction</h2>
                     <div class="live-indicator">
                         <span class="pulse-dot"></span>
                         LIVE MARKET

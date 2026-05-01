@@ -24,9 +24,9 @@ class PredictionRequest(BaseModel):
         example={
             "rsi": 65.5,
             "macd": 0.05,
-            "volume": 1000000,
-            "moving_avg_50": 45000,
-            "moving_avg_200": 42000
+            "volume": 2500000,
+            "moving_avg_50": 155.20,
+            "moving_avg_200": 152.00
         }
     )
 
